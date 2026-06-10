@@ -408,7 +408,7 @@ def logout_view(request):
     if request.method == 'POST':
         logout(request)
         messages.info(request, '로그아웃되었습니다.')
-    return redirect('viewersPage:main_page')
+    return redirect('viewersPage:main')
 
 def idol_tier(request):
     """/idol - 전체 아이돌 승률/픽률/밴율 티어표"""

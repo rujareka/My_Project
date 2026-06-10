@@ -34,7 +34,7 @@ class Idol(models.Model):
     class Meta:
         ordering = ['idol_id']
         verbose_name = '아이돌'
-
+        verbose_name_plural = '아이돌'
     def __str__(self):
         return self.name
 
@@ -104,7 +104,7 @@ class Card(models.Model):
     class Meta:
         ordering = ['idol', 'card_id']
         verbose_name = '카드'
-
+        verbose_name_plural = '카드'
     def __str__(self):
         return f"{self.idol.name if self.idol else '공용'} - {self.name}"
 
@@ -136,6 +136,7 @@ class MemoryCard(models.Model):
     class Meta:
         ordering = ['memory_id']
         verbose_name = '메모리 카드'
+        verbose_name_plural = '메모리 카드'
 
     def __str__(self):
         return self.name
@@ -165,6 +166,7 @@ class PlayerDeck(models.Model):
     class Meta:
         ordering = ['-updated_at']
         verbose_name = '플레이어 덱'
+        verbose_name_plural = '플레이어 덱'
 
     def __str__(self):
         return f"{self.owner.username} - {self.name}"
@@ -185,6 +187,7 @@ class DeckLike(models.Model):
     class Meta:
         unique_together = ('deck', 'user')
         verbose_name    = '덱 추천'
+        verbose_name_plural = '덱 추천'
 
     def __str__(self):
         return f"{self.user.username} → {self.deck.name}"
@@ -199,6 +202,7 @@ class DeckComment(models.Model):
     class Meta:
         ordering   = ['created_at']
         verbose_name = '덱 코멘트'
+        verbose_name_plural = '덱 코멘트'
 
     def __str__(self):
         return f"{self.author.username}: {self.body[:30]}"

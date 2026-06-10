@@ -595,8 +595,17 @@
       <!-- 인증 버튼 -->
       <div class="navbar__auth">
         {% if user.is_authenticated %}
+
+        {% if user.is_superuser %}
+      <a href="/admin/" class="btn-nav-auth" style="background:rgba(212,165,32,0.25); border-color:var(--ial-gold); color:var(--ial-gold)">
+        ⚙ 데이터 관리
+      </a>
+    {% endif %}
           <span style="color: white; font-size:0.88rem; opacity:0.85;">{{ user.username }}</span>
-          <a href="{% url 'viewersPage:logout_view' %}" class="btn-nav-auth">로그아웃</a>
+          <form method="post" action="{% url 'viewersPage:logout_view' %}" style="display:inline">
+          {% csrf_token %}
+          <button type="submit" class="btn-nav-auth">로그아웃</button>
+          </form>
         {% else %}
           <a href="{% url 'viewersPage:login' %}"    class="btn-nav-auth">로그인</a>
           <a href="{% url 'viewersPage:signup' %}" class="btn-nav-auth primary">회원가입</a>
@@ -617,12 +626,22 @@
       padding: 0.8rem 1rem;
       border-top: 1px solid rgba(255,255,255,0.15);
     ">
+      {% if user.is_superuser %}
+      <a href="/admin/" class="btn-nav-auth" style="background:rgba(212,165,32,0.25); border-color:var(--ial-gold); color:var(--ial-gold)">
+        ⚙ 데이터 관리
+      </a>
+    {% endif %}
       <a href="{% url 'viewersPage:my_decks' %}"  style="display:block; color:white; padding:0.5rem 0; border-bottom:1px solid rgba(255,255,255,0.12);">내 덱</a>
       <a href="{% url 'viewersPage:card_list' %}"  style="display:block; color:white; padding:0.5rem 0; border-bottom:1px solid rgba(255,255,255,0.12);">카드 일람</a>
       <a href="{% url 'viewersPage:idol_tier' %}"  style="display:block; color:white; padding:0.5rem 0; border-bottom:1px solid rgba(255,255,255,0.12);">통계</a>
       <a href="{% url 'viewersPage:duel_list' %}"  style="display:block; color:white; padding:0.5rem 0; border-bottom:1px solid rgba(255,255,255,0.12);">대전 기록</a>
       {% if user.is_authenticated %}
-        <a href="{% url 'viewersPage:logout_view' %}" style="display:block; color:white; padding:0.5rem 0; opacity:0.8;">로그아웃</a>
+         <form method="post" action="{% url 'viewersPage:logout_view' %}" style="display:block">
+          {% csrf_token %}
+          <button type="submit" style="display:block; color:white; padding:0.5rem 0; background:none; border:none; cursor:pointer; font-family:inherit; font-size:1rem">
+            로그아웃
+          </button>
+  </form>
       {% else %}
         <a href="{% url 'viewersPage:login' %}"              style="display:block; color:white; padding:0.5rem 0;">로그인</a>
         <a href="{% url 'viewersPage:signup' %}" style="display:block; color:var(--ial-gold); padding:0.5rem 0;">회원가입</a>
