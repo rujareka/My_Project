@@ -13,9 +13,10 @@ def idol_list_api(request):
     data = [{
         'idol_id':    idol.idol_id,
         'name':       idol.name,
+        'start_vol':  idol.start_vol,
+        'start_hand': idol.start_hand,
         'pick_rate':  idol.pick_rate,
         'win_rate':   idol.win_rate,
-        'ban_rate':   idol.ban_rate,
         'banner_img': idol.banner_img_url,
     } for idol in idols]
     return JsonResponse({'idols': data})
@@ -31,7 +32,7 @@ def card_list_api(request):
         'card_id':    c.card_id,
         'name':       c.name,
         'idol':       c.idol.name if c.idol else '공용',
-        'cost':       c.cost,
+        'fan_addition': c.fan_addition,
         'pick_rate':  c.pick_rate,
         'win_rate':   c.win_rate,
         'img_url':    c.card_img_url,

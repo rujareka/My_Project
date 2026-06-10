@@ -43,7 +43,7 @@
           <a href="{% url 'viewersPage:idol_detail' idol.idol_id %}">
             <img
               class="idol-icon {% if forloop.first %}gold-border{% endif %}"
-              src="{{ idol.banner_img_url }}"
+              src="{{ idol.icon_img_url}}"
               alt="{{ idol.name }}"
               title="{{ idol.name }}"
             >
@@ -57,7 +57,6 @@
     <div class="card anim-fade-up anim-delay-2">
       <div class="card__header">
         <span class="card__title">조합 통계</span>
-        <span style="font-size:0.8rem; color:var(--text-secondary);">스크롤 가능</span>
       </div>
       <div class="combo-scroll-body">
         <table class="combo-table">
@@ -98,7 +97,7 @@
     {% with rank1=top_idols.0 %}
     <div class="card rank1-card anim-fade-up anim-delay-1">
       <div class="card__header">
-        <span class="card__title">👑 1위</span>
+        <span class="card__title"> 1위</span>
         <span class="tag">이번 시즌</span>
       </div>
       <div class="rank1-img-wrap">

@@ -9,20 +9,20 @@ from api.models import Idol, Card, MemoryCard, PlayerDeck, DeckLike, DeckComment
 @admin.register(Idol)
 class IdolAdmin(admin.ModelAdmin):
     list_display    = ('idol_id', 'name', 'icon_preview',
-                       'pick_count', 'win_count', 'ban_count')
+                       'start_vol','start_hand','pick_count', 'win_count')
     search_fields   = ('name', 'idol_id')
-    readonly_fields = ('pick_count', 'win_count', 'ban_count',
+    readonly_fields = ('pick_count', 'win_count',
                        'banner_preview', 'icon_preview')
     fieldsets = (
         ('기본 정보', {
-            'fields': ('idol_id', 'name', 'leader_gimmick', 'description')
+            'fields': ('idol_id', 'name','start_vol','start_hand','leader_gimmick', 'description')
         }),
         ('이미지 URL (jsDelivr)', {
             'fields': ('banner_img_url', 'banner_preview',
                        'icon_img_url',   'icon_preview'),
         }),
         ('통계 (자동 집계)', {
-            'fields': ('pick_count', 'win_count', 'ban_count'),
+            'fields': ('pick_count', 'win_count'),
             'classes': ('collapse',)
         }),
     )
@@ -50,15 +50,15 @@ class IdolAdmin(admin.ModelAdmin):
 
 @admin.register(Card)
 class CardAdmin(admin.ModelAdmin):
-    list_display    = ('card_id', 'name', 'idol', 'card_type',
+    list_display    = ('card_id', 'name', 'idol', 'fan_addition',
                        'card_level', 'voltage', 'card_preview')
-    list_filter     = ('idol', 'card_type', 'card_level')
+    list_filter     = ('idol', 'card_level')
     search_fields   = ('name', 'card_id')
     readonly_fields = ('include_count', 'win_count', 'card_preview')
     fieldsets = (
         ('기본 정보', {
-            'fields': ('card_id', 'name', 'idol', 'card_type',
-                       'card_level', 'voltage', 'cost', 'effect')
+            'fields': ('card_id', 'name', 'idol', 'fan_addition',
+                       'card_level', 'voltage', 'effect')
         }),
         ('이미지 URL (jsDelivr)', {
             'fields': ('card_img_url', 'card_preview'),

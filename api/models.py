@@ -22,10 +22,12 @@ class Idol(models.Model):
     leader_gimmick = models.TextField(blank=True)                   # 리더 기믹 설명
     description    = models.TextField(blank=True)                   # 아이돌 소개
 
+    start_vol = models.IntegerField(default=0)
+    start_hand = models.IntegerField(default=0)
+
     # 통계 (대전 결과 수신 시 갱신)
     pick_count = models.IntegerField(default=0)                     # 픽 횟수
     win_count  = models.IntegerField(default=0)                     # 승리 횟수
-    ban_count  = models.IntegerField(default=0)                     # 밴 횟수
 
     # 이미지 (jsDelivr CDN URL 저장 방식 사용)
     banner_img_url = models.URLField(blank=True)                    # 배너 이미지
@@ -51,19 +53,10 @@ class Idol(models.Model):
     @property
     def win_rate(self):
         """승률 = 승리 횟수 / (픽 횟수 - 밴 횟수)"""
-        denom = self.pick_count - self.ban_count
+        denom = self.pick_count
         if denom <= 0:
             return 0.0
         return round(self.win_count / denom * 100, 1)
-
-    @property
-    def ban_rate(self):
-        """밴률"""
-        from api.identix.models import DuelRecord
-        total = DuelRecord.objects.count()
-        if total == 0:
-            return 0.0
-        return round(self.ban_count / total * 100, 1)
 
 
 # ──────────────────────────────────────────────
@@ -74,13 +67,6 @@ class Card(models.Model):
     카드 마스터 데이터
     /cards.json 으로 초기 데이터 로드
     """
-    CARD_TYPE_CHOICES = [
-        ('attack',  '공격'),
-        ('action',  '행동'),
-        ('enhance', '강화'),
-        ('special', '필살기'),
-    ]
-
     card_id    = models.CharField(max_length=30, unique=True)       # ex) "card_idol01_001"
     name       = models.CharField(max_length=100)
     idol       = models.ForeignKey(
@@ -88,8 +74,6 @@ class Card(models.Model):
         related_name='cards',
         null=True, blank=True                                       # 공용 카드는 null
     )
-    card_type  = models.CharField(max_length=20, choices=CARD_TYPE_CHOICES)
-    cost       = models.IntegerField(default=0)                     # 코스트
     effect     = models.TextField(blank=True)                       # 카드 효과 텍스트
     card_img_url = models.URLField(blank=True)                      # jsDelivr CDN URL
 
@@ -100,6 +84,7 @@ class Card(models.Model):
     PERSON_CHOICES = [(1,'P.1'),(2,'P.2'),(3,'P.3')]
     card_level = models.IntegerField(choices=PERSON_CHOICES, default=1)
     voltage    = models.IntegerField(default=0)
+    fan_addition = models.IntegerField(default=0) # 얻는 팬수
 
     class Meta:
         ordering = ['idol', 'card_id']
@@ -162,7 +147,7 @@ class PlayerDeck(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_public  = models.BooleanField(default=False)                 # 덱 공개 여부
-
+    card_list_json = models.TextField(blank=True, default='[]')
     class Meta:
         ordering = ['-updated_at']
         verbose_name = '플레이어 덱'

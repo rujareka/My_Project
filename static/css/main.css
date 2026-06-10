@@ -72,4 +72,8 @@ tr:hover { background: rgba(255,255,255,0.03); }
 .idol-filter-btn.active { border-color: var(--color-primary); color: var(--color-primary); }
 .idol-filter-btn img { height: 20px; vertical-align: middle; margin-right: 4px; }
 
+.fan_pick { height: 20px; horizontal-align: middle; }
+
 footer { text-align: center; padding: 2rem; color: var(--color-muted); font-size: 0.85rem; border-top: 1px solid rgba(255,255,255,0.06); }
+
+

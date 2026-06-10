@@ -54,6 +54,7 @@
                  title="{{ c.name }}&#10;Lv.{{ c.card_level }}  ⚡{{ c.voltage }}&#10;{{ c.effect }}">
               <div class="p-card__art">
                 {% if c.card_img_url %}<img src="{{ c.card_img_url }}" alt="{{ c.name }}">
+                <span class="p-card__count-badge">1</span>
                 {% else %}<span class="p-card__ph">{{ c.name|slice:":2" }}</span>{% endif %}
               </div>
               <p class="p-card__name">{{ c.name }}</p>
@@ -230,19 +231,31 @@
   position: relative;
 }
 .p-card:hover    { transform: translateY(-2px); box-shadow: var(--shadow-card); }
+
 .p-card.selected {
   border-color: var(--ial-lavender);
   box-shadow: 0 0 0 1px var(--ial-lavender);
 }
-/* 선택 오버레이 점 */
-.p-card.selected::after {
-  content: '✓';
+/* 장수 뱃지 */
+.p-card__count-badge {
+  display: none;
   position: absolute;
-  top: 3px; right: 5px;
-  font-size: .75rem;
+  top: 3px; right: 3px;
+  background: var(--ial-lavender);
+  color: white;
+  font-size: .65rem;
   font-weight: 700;
-  color: var(--ial-lavender);
-  text-shadow: 0 0 4px white;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  box-shadow: 0 1px 3px rgba(0,0,0,.3);
+}
+.p-card.selected .p-card__count-badge { display: flex; }
+/* 3장 꽉 찼을 때 골드 색상 */
+.p-card.full .p-card__count-badge {
+  background: var(--ial-gold);
 }
 .p-card__art {
   aspect-ratio: 5/7;
@@ -260,15 +273,28 @@
 </style>
 
 <script>
-const MAIN_MAX = 18, MEM_MAX = 3;
-let selMain = new Set(), selMem = new Set();
+const MAIN_MAX     = 18;
+const CARD_MAX_DUP = 3;   // 카드 1종 최대 장수
+const MEM_MAX      = 3;
 
-/* 기존 덱 편집 시 초기값 */
+/*
+  selMain: Map<cardId, count>  — 카드별 포함 장수 (최대 3)
+  selMem:  Set<memoryId>       — 메모리는 중복 없음
+*/
+let selMain = new Map();
+let selMem  = new Set();
+
+/* ── 기존 덱 편집 초기값 ── */
 {% if deck %}
-{% for c in deck.cards.all        %}selMain.add("{{ c.card_id }}");{% endfor %}
-{% for m in deck.memory_cards.all %}selMem.add("{{ m.memory_id }}");{% endfor %}
+{% for c in deck.cards.all %}
+  selMain.set("{{ c.card_id }}", (selMain.get("{{ c.card_id }}") || 0) + 1);
+{% endfor %}
+{% for m in deck.memory_cards.all %}
+  selMem.add("{{ m.memory_id }}");
+{% endfor %}
 {% endif %}
 
+/* ── 탭 전환 ── */
 function switchTab(btn) {
   document.querySelectorAll('.edit-tab').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.card-pool').forEach(p => p.style.display = 'none');
@@ -276,51 +302,104 @@ function switchTab(btn) {
   document.getElementById(btn.dataset.pool).style.display = '';
 }
 
+/* ── 카드 토글 ── */
 function toggleCard(el) {
   const id   = el.dataset.id;
   const kind = el.dataset.kind;
+
   if (kind === 'memory') {
-    if (selMem.has(id))  { selMem.delete(id); el.classList.remove('selected'); }
-    else if (selMem.size < MEM_MAX) { selMem.add(id); el.classList.add('selected'); }
+    /* 메모리: 중복 없음, 최대 3장 */
+    if (selMem.has(id)) {
+      selMem.delete(id);
+      el.classList.remove('selected', 'full');
+    } else {
+      if (selMem.size >= MEM_MAX) return;
+      selMem.add(id);
+      el.classList.add('selected');
+    }
   } else {
-    if (selMain.has(id)) { selMain.delete(id); el.classList.remove('selected'); }
-    else if (selMain.size < MAIN_MAX) { selMain.add(id); el.classList.add('selected'); }
+    /* 메인: 같은 카드 최대 3장 */
+    const cur = selMain.get(id) || 0;
+    const total = [...selMain.values()].reduce((a, b) => a + b, 0);
+
+    if (cur >= CARD_MAX_DUP) {
+      /* 3장 → 클릭하면 전부 해제 */
+      selMain.delete(id);
+      el.classList.remove('selected', 'full');
+    } else if (total >= MAIN_MAX) {
+      /* 전체 18장 꽉 참 */
+      return;
+    } else {
+      selMain.set(id, cur + 1);
+      el.classList.add('selected');
+      el.classList.toggle('full', cur + 1 >= CARD_MAX_DUP);
+    }
+
+    /* 장수 뱃지 갱신 */
+    const badge = el.querySelector('.p-card__count-badge');
+    if (badge) {
+      const now = selMain.get(id) || 0;
+      badge.textContent = now;
+    }
   }
+
   refresh();
 }
 
+/* ── UI 갱신 ── */
 function refresh() {
-  const mc = selMain.size, me = selMem.size;
+  const mc = [...selMain.values()].reduce((a, b) => a + b, 0);
+  const me = selMem.size;
+
   document.getElementById('cntMain').textContent = `${mc} / ${MAIN_MAX}`;
   document.getElementById('cntMem').textContent  = `${me} / ${MEM_MAX}`;
-  document.getElementById('barMain').style.width = `${mc/MAIN_MAX*100}%`;
-  document.getElementById('barMem').style.width  = `${me/MEM_MAX*100}%`;
+  document.getElementById('barMain').style.width = `${mc / MAIN_MAX * 100}%`;
+  document.getElementById('barMem').style.width  = `${me / MEM_MAX * 100}%`;
+
   const done = mc === MAIN_MAX && me === MEM_MAX;
   document.getElementById('saveBtn').disabled = !done;
   document.getElementById('saveHint').style.display = done ? 'none' : '';
   const badge = document.getElementById('completeBadge');
-  badge.textContent = done ? '완성' : '미완성';
+  badge.textContent      = done ? '완성' : '미완성';
   badge.style.background = done ? 'rgba(76,175,125,.15)' : 'rgba(212,165,32,.15)';
-  badge.style.color       = done ? '#3d9e6a' : 'var(--ial-gold)';
+  badge.style.color      = done ? '#3d9e6a' : 'var(--ial-gold)';
 }
 
+/* ── 공개 토글 ── */
 document.getElementById('fPublic').addEventListener('change', function() {
   document.getElementById('publicLbl').textContent =
     this.checked ? '🔓 공개 — 덱 일람에 표시됩니다' : '🔒 비공개';
 });
+
+/* ── 설명 글자수 ── */
 document.getElementById('fDesc').addEventListener('input', function() {
   document.getElementById('descLen').textContent = this.value.length;
 });
+
+/* ── 폼 제출 — 중복 카드 포함한 배열로 전송 ── */
 document.getElementById('deckForm').addEventListener('submit', function() {
-  document.getElementById('hCards').value = [...selMain].join(',');
+  /* 카드: Map 풀어서 장수만큼 반복 ex) {card_01: 2} → 'card_01,card_01' */
+  const cardArr = [];
+  selMain.forEach((count, id) => {
+    for (let i = 0; i < count; i++) cardArr.push(id);
+  });
+  document.getElementById('hCards').value = cardArr.join(',');
   document.getElementById('hMem').value   = [...selMem].join(',');
 });
+
+/* ── 초기화 시 장수 배지 갱신 ── */
 document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.p-card.selected').forEach(el => {
-    el.dataset.kind === 'memory' ? selMem.add(el.dataset.id) : selMain.add(el.dataset.id);
+  /* 기존 덱 편집: selMain 초기값 기반으로 배지 표시 */
+  selMain.forEach((count, id) => {
+    const el    = document.querySelector(`.p-card[data-id="${id}"]`);
+    const badge = el ? el.querySelector('.p-card__count-badge') : null;
+    if (badge) badge.textContent = count;
+    if (el && count >= CARD_MAX_DUP) el.classList.add('full');
   });
   refresh();
-  document.getElementById('descLen').textContent = document.getElementById('fDesc').value.length;
+  document.getElementById('descLen').textContent =
+    document.getElementById('fDesc').value.length;
 });
 </script>
+
 {% endblock %}

@@ -1,6 +1,5 @@
 {% extends "base.html" %}{% load static %}
 {% block title %}카드 일람 | IdolAlive Statistics{% endblock %}
-
 {% block content %}
 <div class="pg">
 
@@ -13,36 +12,44 @@
 
   <!-- ── 필터 바 ── -->
   <div class="card" style="margin-bottom:1rem">
-    <div class="card__body" style="padding:.8rem 1.1rem">
-      <div class="filter-bar" style="row-gap:.5rem">
+    <div class="card__body" style="padding:1rem 1.2rem">
 
-        <!-- 캐릭터 필터 -->
-        <span class="filter-bar__label">캐릭터</span>
-        <button class="filter-chip active" data-filter="idol" data-val="">전체</button>
-        {% for idol in idols %}
-        <button class="filter-chip" data-filter="idol" data-val="{{ idol.idol_id }}">
-          {% if idol.icon_img_url %}<img src="{{ idol.icon_img_url }}" alt="" style="width:16px;height:16px;border-radius:3px;vertical-align:middle;margin-right:3px">{% endif %}
-          {{ idol.name }}
-        </button>
-        {% endfor %}
-
-        <div style="width:1px;height:20px;background:var(--border-light);margin:0 .3rem"></div>
-
-        <!-- 레벨 필터 -->
-        <span class="filter-bar__label">레벨</span>
-        <button class="filter-chip active" data-filter="level" data-val="">전체</button>
-        <button class="filter-chip" data-filter="level" data-val="1">Lv.1</button>
-        <button class="filter-chip" data-filter="level" data-val="2">Lv.2</button>
-        <button class="filter-chip" data-filter="level" data-val="3">Lv.3</button>
-
-        <div style="width:1px;height:20px;background:var(--border-light);margin:0 .3rem"></div>
-
-        <!-- 볼티지 정렬 -->
-        <span class="filter-bar__label">볼티지</span>
-        <button class="filter-chip" data-filter="voltage" data-val="asc">낮은순</button>
-        <button class="filter-chip" data-filter="voltage" data-val="desc">높은순</button>
-
+      <!-- 캐릭터 -->
+      <div class="filter-row">
+        <span class="filter-row__label">캐릭터</span>
+        <div class="filter-chips" id="chipsIdol">
+          <button class="fchip active" data-filter="idol" data-val="">전체</button>
+          {% for idol in idols %}
+          <button class="fchip" data-filter="idol" data-val="{{ idol.idol_id }}"
+            data-idol-id="{{ idol.idol_id }}">
+            {{ idol.name }}
+          </button>
+          {% endfor %}
+        </div>
       </div>
+
+      <!-- 레벨 -->
+      <div class="filter-row" style="margin-top:.7rem">
+        <span class="filter-row__label">레벨</span>
+        <div class="filter-chips" id="chipsLevel">
+          <button class="fchip active" data-filter="level" data-val="">전체</button>
+          <button class="fchip" data-filter="level" data-val="1">Lv.1</button>
+          <button class="fchip" data-filter="level" data-val="2">Lv.2</button>
+          <button class="fchip" data-filter="level" data-val="3">Lv.3</button>
+        </div>
+      </div>
+
+      <!-- 볼티지 + 초기화 -->
+      <div class="filter-row" style="margin-top:.7rem">
+        <span class="filter-row__label">볼티지</span>
+        <div class="filter-chips">
+          <button class="fchip" data-filter="voltage" data-val="asc">낮은순</button>
+          <button class="fchip" data-filter="voltage" data-val="desc">높은순</button>
+        </div>
+        <!-- 초기화 버튼 -->
+        <button class="fchip fchip--reset" id="resetBtn" onclick="resetFilters()">↺ 초기화</button>
+      </div>
+
     </div>
   </div>
 
@@ -53,18 +60,14 @@
          data-idol="{{ c.idol.idol_id|default:'' }}"
          data-level="{{ c.card_level }}"
          data-voltage="{{ c.voltage }}">
-
-      <!-- 카드 이미지 -->
       <div class="cl-card__art">
         {% if c.card_img_url %}
           <img src="{{ c.card_img_url }}" alt="{{ c.name }}">
         {% else %}
           <div class="cl-card__ph">{{ c.name|slice:":2" }}</div>
         {% endif %}
-        <!-- 레벨 배지 -->
         <span class="cl-card__lv-badge">Lv.{{ c.card_level }}</span>
       </div>
-
       <div class="cl-card__body">
         <p class="cl-card__name">{{ c.name }}</p>
         <div class="cl-card__row">
@@ -72,12 +75,9 @@
           <span class="cl-card__voltage">⚡{{ c.voltage }}</span>
         </div>
       </div>
-
-      <!-- 툴팁 -->
       <div class="cl-tooltip">
         <p class="cl-tooltip__name">{{ c.name }}</p>
         <div class="cl-tooltip__tags">
-          <span class="tag">{{ c.get_card_type_display }}</span>
           <span class="tag">Lv.{{ c.card_level }}</span>
           <span class="tag">볼티지 {{ c.voltage }}</span>
           <span class="tag">코스트 {{ c.cost }}</span>
@@ -89,7 +89,6 @@
           <span>승률 <b class="stat-win">{{ c.win_rate }}%</b></span>
         </div>
       </div>
-
     </div>
     {% endfor %}
   </div>
@@ -101,7 +100,79 @@
 </div>
 
 <style>
-/* 카드 그리드 */
+/* ── 필터 행 ── */
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  flex-wrap: wrap;
+}
+.filter-row__label {
+  font-size: .8rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  width: 46px;
+  flex-shrink: 0;
+}
+.filter-chips { display: flex; gap: .4rem; flex-wrap: wrap; }
+
+/* ── 필터 칩 (둥근 직사각형, 크기 통일) ── */
+.fchip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 72px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border-card);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-size: .82rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.fchip:hover {
+  border-color: var(--ial-lavender);
+  color: var(--ial-lavender-dk);
+  background: rgba(155,165,212,.08);
+}
+.fchip.active {
+  border-color: var(--ial-lavender);
+  background: var(--ial-lavender);
+  color: white;
+  font-weight: 700;
+}
+
+/* 아이돌 칩 — 퍼스널 컬러 적용 */
+.fchip[data-filter="idol"]:not([data-val=""]).active {
+  background: var(--idol-color, var(--ial-lavender));
+  border-color: var(--idol-color, var(--ial-lavender));
+  color: white;
+}
+.fchip[data-filter="idol"]:not([data-val=""]):hover {
+  border-color: var(--idol-color, var(--ial-lavender));
+  color: var(--idol-color, var(--ial-lavender-dk));
+  background: color-mix(in srgb, var(--idol-color, var(--ial-lavender)) 12%, transparent);
+}
+
+/* 초기화 버튼 */
+.fchip--reset {
+  min-width: 72px;
+  border-color: rgba(232,69,122,.3);
+  color: var(--ial-pink);
+  margin-left: auto;
+}
+.fchip--reset:hover {
+  background: rgba(232,69,122,.08);
+  border-color: var(--ial-pink);
+  color: var(--ial-pink);
+}
+
+/* ── 카드 그리드 (기존 유지) ── */
 .card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
@@ -110,128 +181,76 @@
 @media(min-width:700px)  { .card-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); } }
 @media(min-width:1000px) { .card-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); } }
 
-/* 카드 아이템 */
-.cl-card {
-  background: var(--bg-card);
-  border: 1.5px solid var(--border-card);
-  border-radius: var(--radius-md);
-  overflow: visible;        /* 툴팁이 overflow 밖으로 나와야 함 */
-  cursor: pointer;
-  position: relative;
-  transition: transform .15s, box-shadow .15s;
-}
-.cl-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); z-index: 10; }
-
-.cl-card__art {
-  position: relative;
-  aspect-ratio: 5/7;
-  background: #e8e5f0;
-  border-radius: var(--radius-md) var(--radius-md) 0 0;
-  overflow: hidden;
-}
+.cl-card { background:var(--bg-card); border:1.5px solid var(--border-card); border-radius:var(--radius-md); overflow:visible; cursor:pointer; position:relative; transition:transform .15s, box-shadow .15s; }
+.cl-card:hover { transform:translateY(-3px); box-shadow:var(--shadow-hover); z-index:10; }
+.cl-card__art { position:relative; aspect-ratio:5/7; background:#e8e5f0; border-radius:var(--radius-md) var(--radius-md) 0 0; overflow:hidden; }
 .cl-card__art img { width:100%; height:100%; object-fit:cover; }
-.cl-card__ph {
-  width:100%; height:100%;
-  display:flex; align-items:center; justify-content:center;
-  font-size:1.2rem; font-weight:700; color:var(--text-secondary);
-}
-.cl-card__lv-badge {
-  position: absolute;
-  bottom: 4px; left: 4px;
-  background: rgba(0,0,0,.55);
-  color: white;
-  font-size: .6rem;
-  font-weight: 700;
-  padding: 1px 5px;
-  border-radius: 4px;
-}
-
-.cl-card__body  { padding: 4px 6px 6px; }
-.cl-card__name  { font-size:.68rem; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.cl-card__row   { display:flex; justify-content:space-between; margin-top:2px; }
-.cl-card__idol  { font-size:.6rem; color:var(--text-secondary); }
+.cl-card__ph { width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:1.2rem; font-weight:700; color:var(--text-secondary); }
+.cl-card__lv-badge { position:absolute; bottom:4px; left:4px; background:rgba(0,0,0,.55); color:white; font-size:.6rem; font-weight:700; padding:1px 5px; border-radius:4px; }
+.cl-card__body { padding:4px 6px 6px; }
+.cl-card__name { font-size:.68rem; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.cl-card__row { display:flex; justify-content:space-between; margin-top:2px; }
+.cl-card__idol { font-size:.6rem; color:var(--text-secondary); }
 .cl-card__voltage { font-size:.6rem; color:var(--ial-lavender-dk); font-weight:700; }
 
-/* 툴팁 */
-.cl-tooltip {
-  display: none;
-  position: absolute;
-  bottom: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%);
-  width: 220px;
-  background: var(--bg-card);
-  border: 1.5px solid var(--border-card);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-hover);
-  padding: .75rem .9rem;
-  z-index: 200;
-  pointer-events: none;
-}
-.cl-tooltip::after {
-  content: '';
-  position: absolute;
-  top: 100%; left: 50%;
-  transform: translateX(-50%);
-  border: 6px solid transparent;
-  border-top-color: var(--border-card);
-}
-.cl-card:hover .cl-tooltip { display: block; }
-
-/* 화면 왼쪽 끝 카드는 툴팁을 오른쪽으로 */
+.cl-tooltip { display:none; position:absolute; bottom:calc(100% + 8px); left:50%; transform:translateX(-50%); width:220px; background:var(--bg-card); border:1.5px solid var(--border-card); border-radius:var(--radius-md); box-shadow:var(--shadow-hover); padding:.75rem .9rem; z-index:200; pointer-events:none; }
+.cl-tooltip::after { content:''; position:absolute; top:100%; left:50%; transform:translateX(-50%); border:6px solid transparent; border-top-color:var(--border-card); }
+.cl-card:hover .cl-tooltip { display:block; }
 .cl-card:hover:nth-child(1) .cl-tooltip,
-.cl-card:hover:nth-child(2) .cl-tooltip {
-  left: 0; transform: none;
-}
-
-.cl-tooltip__name   { font-weight:700; font-size:.88rem; margin-bottom:.35rem; color:var(--text-primary); }
-.cl-tooltip__tags   { display:flex; flex-wrap:wrap; gap:.25rem; margin-bottom:.35rem; }
-.cl-tooltip__idol   { font-size:.75rem; color:var(--ial-lavender-dk); font-weight:600; margin-bottom:.25rem; }
+.cl-card:hover:nth-child(2) .cl-tooltip { left:0; transform:none; }
+.cl-tooltip__name { font-weight:700; font-size:.88rem; margin-bottom:.35rem; color:var(--text-primary); }
+.cl-tooltip__tags { display:flex; flex-wrap:wrap; gap:.25rem; margin-bottom:.35rem; }
+.cl-tooltip__idol { font-size:.75rem; color:var(--ial-lavender-dk); font-weight:600; margin-bottom:.25rem; }
 .cl-tooltip__effect { font-size:.78rem; color:var(--text-secondary); line-height:1.55; margin-bottom:.4rem; }
-.cl-tooltip__stats  { display:flex; gap:1rem; font-size:.75rem; color:var(--text-secondary); border-top:1px solid var(--border-light); padding-top:.35rem; }
+.cl-tooltip__stats { display:flex; gap:1rem; font-size:.75rem; color:var(--text-secondary); border-top:1px solid var(--border-light); padding-top:.35rem; }
 </style>
 
 <script>
-/* ── 필터 상태 ── */
+
+
 let filters = { idol: '', level: '', voltage: '' };
 
-document.querySelectorAll('.filter-chip').forEach(btn => {
+document.querySelectorAll('.fchip').forEach(btn => {
   btn.addEventListener('click', () => {
     const type = btn.dataset.filter;
     const val  = btn.dataset.val;
+    if (!type) return;
 
-    /* 같은 그룹 active 해제 */
-    document.querySelectorAll(`.filter-chip[data-filter="${type}"]`).forEach(b => b.classList.remove('active'));
+    document.querySelectorAll(`.fchip[data-filter="${type}"]`).forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-
-    /* voltage 는 정렬, 나머지는 필터 */
     filters[type] = val;
     applyFilters();
   });
 });
 
-function applyFilters() {
-  let cards = [...document.querySelectorAll('.cl-card')];
+function resetFilters() {
+  filters = { idol: '', level: '', voltage: '' };
+  /* 각 그룹의 '전체' 버튼 활성화 */
+  ['idol', 'level'].forEach(type => {
+    document.querySelectorAll(`.fchip[data-filter="${type}"]`).forEach(b => b.classList.remove('active'));
+    document.querySelector(`.fchip[data-filter="${type}"][data-val=""]`).classList.add('active');
+  });
+  document.querySelectorAll('.fchip[data-filter="voltage"]').forEach(b => b.classList.remove('active'));
+  applyFilters();
+}
 
-  /* 필터 */
+function applyFilters() {
+  const cards = [...document.querySelectorAll('.cl-card')];
   cards.forEach(c => {
-    const showIdol   = !filters.idol   || c.dataset.idol  === filters.idol;
-    const showLevel  = !filters.level  || c.dataset.level === filters.level;
+    const showIdol  = !filters.idol  || c.dataset.idol  === filters.idol;
+    const showLevel = !filters.level || c.dataset.level === filters.level;
     c.style.display = (showIdol && showLevel) ? '' : 'none';
   });
-
-  /* 볼티지 정렬 */
   if (filters.voltage) {
-    const grid = document.getElementById('cardGrid');
+    const grid    = document.getElementById('cardGrid');
     const visible = cards.filter(c => c.style.display !== 'none');
     visible.sort((a, b) => filters.voltage === 'asc'
       ? a.dataset.voltage - b.dataset.voltage
       : b.dataset.voltage - a.dataset.voltage);
     visible.forEach(c => grid.appendChild(c));
   }
-
-  const anyVisible = cards.some(c => c.style.display !== 'none');
-  document.getElementById('noResult').style.display = anyVisible ? 'none' : '';
+  const any = cards.some(c => c.style.display !== 'none');
+  document.getElementById('noResult').style.display = any ? 'none' : '';
 }
 </script>
 {% endblock %}

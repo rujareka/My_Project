@@ -11,7 +11,7 @@
     </div>
   </div>
 
-  <!-- ══════════════════════════
+  <!-- ══════════════════════════════
        상단: 통계 테이블 + 1위 카드
        ══════════════════════════ -->
   <div class="stats-top-grid">
@@ -20,104 +20,145 @@
     <div class="card">
       <div class="card__header">
         <span class="card__title">캐릭터 통계</span>
-        <span class="tag">{{ total_duels }}경기</span>
+        <span class="tag">{{ total_duels }}경기 · 승률순</span>
       </div>
       <div style="overflow-x:auto">
-        <table class="data-table">
+        <table class="st-table">
           <thead>
             <tr>
-              <th>#</th>
-              <th>캐릭터</th>
-              <th class="sortable sorted" data-col="pick_rate" onclick="sortTable(this)">픽률 <span class="sort-arrow">▼</span></th>
-              <th class="sortable" data-col="pick_count"  onclick="sortTable(this)">픽 횟수 <span class="sort-arrow">▼</span></th>
-              <th class="sortable" data-col="win_rate"    onclick="sortTable(this)">승률 <span class="sort-arrow">▼</span></th>
-              <th class="sortable" data-col="win_count"   onclick="sortTable(this)">승 횟수 <span class="sort-arrow">▼</span></th>
-              <th class="sortable" data-col="ban_rate"    onclick="sortTable(this)">밴률 <span class="sort-arrow">▼</span></th>
+              <th class="st-th--rank">#</th>
+              <th class="st-th--char">캐릭터</th>
+              <th class="st-th--stat sortable sorted" data-col="win_rate" onclick="sortTable(this)">
+                승률 <span class="sort-arrow">▼</span>
+              </th>
+              <th class="st-th--stat sortable" data-col="win_count" onclick="sortTable(this)">
+                승 횟수 <span class="sort-arrow">▼</span>
+              </th>
+              <th class="st-th--stat sortable" data-col="pick_rate" onclick="sortTable(this)">
+                픽률 <span class="sort-arrow">▼</span>
+              </th>
+              <th class="st-th--stat sortable" data-col="pick_count" onclick="sortTable(this)">
+                픽 횟수 <span class="sort-arrow">▼</span>
+              </th>
+              <th class="st-th--stat sortable" data-col="ban_rate" onclick="sortTable(this)">
+                밴률 <span class="sort-arrow">▼</span>
+              </th>
             </tr>
           </thead>
           <tbody id="statsTbody">
             {% for idol in idols %}
             <tr
-              data-pick-rate="{{ idol.pick_rate }}"
-              data-pick-count="{{ idol.pick_count }}"
               data-win-rate="{{ idol.win_rate }}"
               data-win-count="{{ idol.win_count }}"
+              data-pick-rate="{{ idol.pick_rate }}"
+              data-pick-count="{{ idol.pick_count }}"
               data-ban-rate="{{ idol.ban_rate }}"
             >
-              <td style="color:var(--text-secondary);font-weight:700">{{ forloop.counter }}</td>
-              <td>
-                <div style="display:flex;align-items:center;gap:.5rem">
-                  {% if idol.icon_img_url %}
-                    <img src="{{ idol.icon_img_url }}" alt="{{ idol.name }}" class="idol-mini">
-                  {% endif %}
+              <!-- 순위 -->
+              <td class="st-td--rank">{{ forloop.counter }}</td>
+
+              <!-- 캐릭터 (아이콘 고정 크기 + 이름) -->
+              <td class="st-td--char">
+                <div class="st-char">
+                  <div class="st-char__icon-wrap">
+                    {% if idol.icon_img_url %}
+                      <img src="{{ idol.icon_img_url }}" alt="{{ idol.name }}" class="st-char__icon">
+                    {% else %}
+                      <div class="st-char__icon st-char__icon-ph">{{ idol.name|slice:":1" }}</div>
+                    {% endif %}
+                  </div>
                   <a href="{% url 'viewersPage:idol_detail' idol.idol_id %}"
-                    style="font-weight:600;color:var(--ial-lavender-dk)">{{ idol.name }}</a>
+                    class="st-char__name">{{ idol.name }}</a>
                 </div>
               </td>
-              <td class="stat-pick">{{ idol.pick_rate }}%</td>
-              <td>{{ idol.pick_count }}</td>
-              <td class="stat-win">{{ idol.win_rate }}%</td>
-              <td>{{ idol.win_count }}</td>
-              <td class="stat-ban">{{ idol.ban_rate }}%</td>
+
+              <!-- 승률 — 바 포함 -->
+              <td class="st-td--stat">
+                <div class="st-stat-cell">
+                  <span class="stat-win">{{ idol.win_rate }}%</span>
+                  <div class="st-mini-bar">
+                    <div class="st-mini-bar__fill st-mini-bar__fill--win"
+                         style="width:{{ idol.win_rate }}%"></div>
+                  </div>
+                </div>
+              </td>
+
+              <!-- 승 횟수 -->
+              <td class="st-td--stat">{{ idol.win_count }}</td>
+
+              <!-- 픽률 — 바 포함 -->
+              <td class="st-td--stat">
+                <div class="st-stat-cell">
+                  <span class="stat-pick">{{ idol.pick_rate }}%</span>
+                  <div class="st-mini-bar">
+                    <div class="st-mini-bar__fill st-mini-bar__fill--pick"
+                         style="width:{{ idol.pick_rate }}%"></div>
+                  </div>
+                </div>
+              </td>
+
+              <!-- 픽 횟수 -->
+              <td class="st-td--stat">{{ idol.pick_count }}</td>
+
+              <!-- 밴률 -->
+              <td class="st-td--stat stat-ban">{{ idol.ban_rate }}%</td>
+
             </tr>
             {% empty %}
-            <tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-secondary)">데이터 없음</td></tr>
+            <tr>
+              <td colspan="7" style="text-align:center;padding:2rem;color:var(--text-secondary)">
+                데이터 없음
+              </td>
+            </tr>
             {% endfor %}
           </tbody>
         </table>
       </div>
     </div>
 
-    <!-- 우: 픽률 1위 캐릭터 -->
+    <!-- 우: 승률 1위 카드 -->
     {% if idols %}
     {% with rank1=idols.0 %}
     <div class="card rank1-card">
       <div class="card__header" style="background:linear-gradient(135deg,#fff8e8,#fff3d0);border-bottom-color:rgba(212,165,32,.3)">
-        <span class="card__title" style="color:var(--ial-gold)">👑 픽률 1위</span>
+        <span class="card__title" style="color:var(--ial-gold)"> 승률 1위</span>
         <span class="tag">이번 시즌</span>
       </div>
       <div class="rank1-img-wrap">
         {% if rank1.banner_img_url %}
           <img class="rank1-img" src="{{ rank1.banner_img_url }}" alt="{{ rank1.name }}">
         {% else %}
-          <div class="rank1-img" style="background:linear-gradient(145deg,#ffeef4,#fff0f8);display:flex;align-items:center;justify-content:center;font-size:3rem">?</div>
+          <div class="rank1-img rank1-img--ph">?</div>
         {% endif %}
-        <div class="rank1-badge">（왕관）<br>1 위</div>
+        <div class="rank1-badge">1 위</div>
       </div>
       <div class="card__body">
-        <p style="font-weight:700;font-size:1rem;margin-bottom:.4rem">{{ rank1.name }}</p>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
-          <div class="stat-box">
-            <p class="stat-box__label">픽률</p>
-            <p class="stat-box__val stat-pick">{{ rank1.pick_rate }}%</p>
+        <p style="font-weight:700;font-size:1rem;margin-bottom:.6rem">{{ rank1.name }}</p>
+        <div class="rank1-stats-grid">
+          <div class="rank1-stat">
+            <p class="rank1-stat__label">승률</p>
+            <p class="rank1-stat__val stat-win">{{ rank1.win_rate }}%</p>
           </div>
-          <div class="stat-box">
-            <p class="stat-box__label">승률</p>
-            <p class="stat-box__val stat-win">{{ rank1.win_rate }}%</p>
+          <div class="rank1-stat">
+            <p class="rank1-stat__label">픽률</p>
+            <p class="rank1-stat__val stat-pick">{{ rank1.pick_rate }}%</p>
           </div>
-          <div class="stat-box">
-            <p class="stat-box__label">픽 횟수</p>
-            <p class="stat-box__val">{{ rank1.pick_count }}</p>
+          <div class="rank1-stat">
+            <p class="rank1-stat__label">승 횟수</p>
+            <p class="rank1-stat__val">{{ rank1.win_count }}</p>
           </div>
-          <div class="stat-box">
-            <p class="stat-box__label">밴률</p>
-            <p class="stat-box__val stat-ban">{{ rank1.ban_rate }}%</p>
+          <div class="rank1-stat">
+            <p class="rank1-stat__label">픽 횟수</p>
+            <p class="rank1-stat__val">{{ rank1.pick_count }}</p>
           </div>
-        </div>
-        {% if rank1.leader_gimmick %}
-        <p style="font-size:.78rem;color:var(--text-secondary);margin-top:.7rem;line-height:1.55;border-top:1px solid var(--border-light);padding-top:.6rem">
-          {{ rank1.leader_gimmick|truncatechars:80 }}
-        </p>
-        {% endif %}
-      </div>
     </div>
     {% endwith %}
     {% endif %}
 
   </div><!-- /stats-top-grid -->
 
-  <!-- ══════════════════════════
-       하단: 전체 바 차트 (9명)
+  <!-- ══════════════════════════════
+       하단: 전체 바 차트
        ══════════════════════════ -->
   <div class="card" style="margin-top:1.2rem">
     <div class="card__header">
@@ -141,57 +182,124 @@
 </div>
 
 <style>
-/* 상단 그리드: 테이블(좌) + 1위 카드(우) */
+/* 상단 그리드 */
 .stats-top-grid {
   display: grid;
-  grid-template-columns: 1fr 300px;
+  grid-template-columns: 1fr 290px;
   gap: 1.2rem;
   align-items: start;
 }
 @media(max-width:860px) { .stats-top-grid { grid-template-columns: 1fr; } }
 
-/* 1위 카드 (기존 index_preview 와 동일) */
-.rank1-card { border: 2px solid var(--ial-gold); box-shadow: 0 4px 20px rgba(212,165,32,.18); }
-.rank1-img-wrap {
-  position: relative;
-  background: linear-gradient(145deg,#ffeef4,#fff0f8);
+/* ── 통계 테이블 ── */
+.st-table { width:100%; border-collapse:collapse; font-size:.875rem; }
+
+.st-table thead th {
+  background: #f0eef8;
+  padding: .55rem .9rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-light);
+  font-size: .76rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.st-table thead th.sortable { cursor:pointer; user-select:none; }
+.st-table thead th.sortable:hover { color:var(--ial-lavender-dk); }
+.st-table thead th.sorted { color:var(--ial-lavender-dk); }
+.sort-arrow { margin-left:2px; font-size:.65rem; opacity:.5; }
+.sorted .sort-arrow { opacity:1; }
+
+.st-th--rank  { width:36px; text-align:center; }
+.st-th--char  { min-width:140px; }
+.st-th--stat  { text-align:center; min-width:80px; }
+
+.st-table tbody td {
+  padding: .5rem .9rem;
+  border-bottom: .5px solid var(--border-light);
+  vertical-align: middle;
+}
+.st-table tbody tr:last-child td { border-bottom:none; }
+.st-table tbody tr:hover td { background:var(--bg-card-hover); }
+
+.st-td--rank { text-align:center; font-weight:700; color:var(--text-secondary); font-size:.82rem; }
+.st-td--char { }
+.st-td--stat { text-align:center; }
+
+/* 캐릭터 셀 */
+.st-char { display:flex; align-items:center; gap:.6rem; }
+.st-char__icon-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
   overflow: hidden;
-  min-height: 200px;
+  flex-shrink: 0;
+  border: 1.5px solid var(--border-card);
+  background: #e8e5f0;
 }
+.st-char__icon {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.st-char__icon-ph {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+.st-char__name {
+  font-weight: 600;
+  font-size: .88rem;
+  color: var(--ial-lavender-dk);
+}
+.st-char__name:hover { text-decoration: underline; }
+
+/* 미니 바 */
+.st-stat-cell { display:flex; flex-direction:column; align-items:center; gap:3px; }
+.st-mini-bar {
+  width: 60px;
+  height: 4px;
+  background: var(--border-light);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.st-mini-bar__fill { height:100%; border-radius:99px; transition:width .4s; }
+.st-mini-bar__fill--win  { background:var(--ial-red-bar); }
+.st-mini-bar__fill--pick { background:var(--ial-blue-bar); }
+
+/* 1위 카드 */
+.rank1-card { border:2px solid var(--ial-gold); box-shadow:0 4px 20px rgba(212,165,32,.18); }
+.rank1-img-wrap { position:relative; background:linear-gradient(145deg,#ffeef4,#fff0f8); overflow:hidden; min-height:200px; }
 .rank1-img { width:100%; height:200px; object-fit:cover; object-position:center top; display:block; }
-.rank1-badge {
-  position: absolute; bottom:.6rem; right:.6rem;
-  background: rgba(255,255,255,.92);
-  border: 2px solid var(--ial-gold);
-  border-radius: var(--radius-md);
-  padding: .15rem .65rem;
-  font-family: var(--font-display);
-  font-size: 1.3rem;
-  color: var(--ial-gold);
-  letter-spacing: .06em;
-  line-height: 1.4;
-  text-align: center;
-}
+.rank1-img--ph { display:flex; align-items:center; justify-content:center; font-size:3rem; }
+.rank1-badge { position:absolute; bottom:.6rem; right:.6rem; background:rgba(255,255,255,.92); border:2px solid var(--ial-gold); border-radius:var(--radius-md); padding:.15rem .65rem; font-family:var(--font-display); font-size:1.3rem; color:var(--ial-gold); letter-spacing:.06em; line-height:1.4; text-align:center; }
 
-/* 통계 박스 */
-.stat-box { background: #f8f7fc; border-radius: var(--radius-sm); padding: .45rem .6rem; text-align:center; }
-.stat-box__label { font-size:.72rem; color:var(--text-secondary); margin-bottom:2px; }
-.stat-box__val   { font-family:var(--font-display); font-size:1.4rem; letter-spacing:.04em; color:var(--text-primary); line-height:1; }
+.rank1-stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:.5rem; margin-bottom:.6rem; }
+.rank1-stat { background:#f8f7fc; border-radius:var(--radius-sm); padding:.45rem .6rem; text-align:center; }
+.rank1-stat__label { font-size:.72rem; color:var(--text-secondary); margin-bottom:2px; }
+.rank1-stat__val { font-family:var(--font-display); font-size:1.4rem; letter-spacing:.04em; color:var(--text-primary); line-height:1; }
+.rank1-gimmick { font-size:.78rem; color:var(--text-secondary); line-height:1.55; border-top:1px solid var(--border-light); padding-top:.6rem; }
 
-/* 차트 범례 (기존 동일) */
-.chart-legend       { display:flex; gap:1rem; align-items:center; }
+/* 차트 범례 */
+.chart-legend { display:flex; gap:1rem; align-items:center; }
 .chart-legend__item { display:flex; align-items:center; gap:5px; font-size:.82rem; color:var(--text-secondary); }
-.chart-legend__dot  { width:12px; height:12px; border-radius:3px; flex-shrink:0; }
-.bar-chart-wrap     { position:relative; }
+.chart-legend__dot { width:12px; height:12px; border-radius:3px; flex-shrink:0; }
+.bar-chart-wrap { position:relative; }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
 /* ── 전체 바 차트 ── */
 (function(){
-  const labels    = {{ chart_labels|safe }};
-  const winRates  = {{ chart_win_rates|safe }};
-  const pickRates = {{ chart_pick_rates|safe }};
+  const labels     = {{ chart_labels|safe }};
+  const winRates   = {{ chart_win_rates|safe }};
+  const pickRates  = {{ chart_pick_rates|safe }};
   const ctx = document.getElementById('allChart');
   if (!ctx || !labels.length) return;
   new Chart(ctx, {
@@ -215,26 +323,29 @@
 })();
 
 /* ── 테이블 정렬 ── */
-let sortDir = -1; // -1=내림차순, 1=오름차순
-let sortCol = 'pick_rate';
+let sortDir = -1;
+let sortCol = 'win_rate';
 
 function sortTable(th) {
   const col = th.dataset.col;
-  if (sortCol === col) sortDir *= -1;
-  else { sortCol = col; sortDir = -1; }
+  sortDir = (sortCol === col) ? sortDir * -1 : -1;
+  sortCol = col;
 
-  document.querySelectorAll('.data-table th').forEach(h => h.classList.remove('sorted'));
+  document.querySelectorAll('.st-table th').forEach(h => h.classList.remove('sorted'));
   th.classList.add('sorted');
+
+  /* camelCase 변환: win_rate → winRate */
+  const toCamel = s => s.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
 
   const tbody = document.getElementById('statsTbody');
   const rows  = [...tbody.querySelectorAll('tr')];
-  rows.sort((a,b) => {
-    const va = parseFloat(a.dataset[col.replace(/_([a-z])/g, (_,c)=>c.toUpperCase())] || 0);
-    const vb = parseFloat(b.dataset[col.replace(/_([a-z])/g, (_,c)=>c.toUpperCase())] || 0);
+  rows.sort((a, b) => {
+    const va = parseFloat(a.dataset[toCamel(col)] || 0);
+    const vb = parseFloat(b.dataset[toCamel(col)] || 0);
     return (vb - va) * sortDir;
   });
-  rows.forEach((r,i) => {
-    r.querySelector('td').textContent = i+1;
+  rows.forEach((r, i) => {
+    r.querySelector('.st-td--rank').textContent = i + 1;
     tbody.appendChild(r);
   });
 }

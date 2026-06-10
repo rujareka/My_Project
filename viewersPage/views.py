@@ -7,8 +7,9 @@ viewersPage/views.py
 - 로그인 필요 여부 데코레이터로 구분
 """
 import json
+import json as _json
 from django.core.paginator import Paginator
-
+from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout, authenticate
@@ -42,22 +43,19 @@ from api.identix.duel_logic import (
 #     })
 
 def main_page(request):
-    """
-    GET /
-    상위 아이돌 바 차트 + 최근 대전 + 조합 통계 요약
-    """
     top_idols    = get_idol_tier_list()[:10]
     recent_duels = get_recent_duels(5)
 
-    # Chart.js 에 넘길 JSON (템플릿에서 |safe 로 출력)
-    chart_idols = top_idols[:6]
+    # ★ 픽률 상위 5명만 차트에 표시
+    chart_idols = sorted(top_idols, key=lambda i: i.pick_rate, reverse=True)[:5]
+
     context = {
         'top_idols':         top_idols,
         'recent_duels':      recent_duels,
-        'top_combos':        [],          # 추후 duel_logic.py에서 구현
-        'chart_labels':      json.dumps([i.name      for i in chart_idols]),
-        'chart_win_rates':   json.dumps([i.win_rate  for i in chart_idols]),
-        'chart_pick_rates':  json.dumps([i.pick_rate for i in chart_idols]),
+        'top_combos':        [],
+        'chart_labels':      json.dumps([i.name       for i in chart_idols]),
+        'chart_win_rates':   json.dumps([i.win_rate   for i in chart_idols]),
+        'chart_pick_rates':  json.dumps([i.pick_rate  for i in chart_idols]),
         'stats': {
             'total_duels': DuelRecord.objects.count(),
             'total_idols': Idol.objects.count(),
@@ -108,11 +106,15 @@ def deck_edit_new(request):
     idol_ids     = [i.strip() for i in idol_ids_str.split(',') if i.strip()]
     if len(idol_ids) != 3:
         messages.error(request, '캐릭터를 정확히 3명 선택해주세요.')
-        return redirect('ViewersPage:deck_new')
+        return redirect('viewersPage:deck_new')
 
     selected_idols = list(Idol.objects.filter(idol_id__in=idol_ids)
                           .prefetch_related('cards'))
-    memory_cards   = MemoryCard.objects.all()
+    memory_cards = MemoryCard.objects.filter(
+        Q(idol__idol_id__in=idol_ids) | Q(idol=None)
+    ).distinct()
+
+
     return render(request, 'deck_edit.html', {
         'selected_idols': selected_idols,
         'memory_cards':   memory_cards,
@@ -128,7 +130,11 @@ def deck_edit(request, deck_id):
     idol_ids_str   = request.GET.get('idols') or (deck.idol.idol_id if deck.idol else '')
     selected_idols = list(Idol.objects.filter(idol_id__in=idol_ids_str.split(','))
                           .prefetch_related('cards'))
-    memory_cards   = MemoryCard.objects.all()
+    idol_ids = [i.strip() for i in idol_ids_str.split(',') if i.strip()]
+    memory_cards = MemoryCard.objects.filter(
+        Q(idol__idol_id__in=idol_ids) | Q(idol=None)
+    ).distinct()
+
     return render(request, 'deck_edit.html', {
         'selected_idols': selected_idols,
         'memory_cards':   memory_cards,
@@ -144,11 +150,12 @@ def deck_edit(request, deck_id):
 def deck_save(request):
     """POST /deck/save/"""
     if request.method != 'POST':
-        return redirect('ViewersPage:deck_list')
+        return redirect('viewersPage:deck_list')
 
-    deck_id   = request.POST.get('deck_id')   # 기존 덱이면 id 존재
+    deck_id   = request.POST.get('deck_id')
     name      = request.POST.get('name', '').strip()
     idol_ids  = request.POST.get('idol_ids', '')
+    # card_ids: 중복 포함 리스트 ex) ['card_01','card_01','card_02',...]
     card_ids  = [c for c in request.POST.get('selected_cards', '').split(',') if c]
     mem_ids   = [m for m in request.POST.get('selected_memories', '').split(',') if m]
     desc      = request.POST.get('description', '')
@@ -157,27 +164,30 @@ def deck_save(request):
     # 유효성 검사
     if not name:
         messages.error(request, '덱 이름을 입력해주세요.')
-        return redirect('ViewersPage:deck_list')
+        return redirect('viewersPage:deck_list')
     if len(card_ids) != 18:
         messages.error(request, f'메인 카드는 정확히 18장이어야 합니다. (현재 {len(card_ids)}장)')
-        return redirect('ViewersPage:deck_list')
+        return redirect('viewersPage:deck_list')
     if len(mem_ids) != 3:
         messages.error(request, f'메모리 카드는 정확히 3장이어야 합니다. (현재 {len(mem_ids)}장)')
-        return redirect('ViewersPage:deck_list')
+        return redirect('viewersPage:deck_list')
 
-    # 대표 아이돌: idol_ids 첫 번째
+    # 대표 아이돌
     first_idol_id = idol_ids.split(',')[0].strip()
     idol = Idol.objects.filter(idol_id=first_idol_id).first()
 
-    cards   = Card.objects.filter(card_id__in=card_ids)
+    # 중복 제거 후 M2M 저장 (DB용) + 원본 리스트 JSON 저장 (중복 정보 보존)
+    unique_card_ids = list(dict.fromkeys(card_ids))  # 순서 유지하며 중복 제거
+    cards    = Card.objects.filter(card_id__in=unique_card_ids)
     memories = MemoryCard.objects.filter(memory_id__in=mem_ids)
 
     if deck_id:
         deck = get_object_or_404(PlayerDeck, id=deck_id, owner=request.user)
-        deck.name        = name
-        deck.idol        = idol
-        deck.description = desc
-        deck.is_public   = is_public
+        deck.name           = name
+        deck.idol           = idol
+        deck.description    = desc
+        deck.is_public      = is_public
+        deck.card_list_json = _json.dumps(card_ids)   # 중복 포함 원본 저장
         deck.save()
         deck.cards.set(cards)
         deck.memory_cards.set(memories)
@@ -185,13 +195,15 @@ def deck_save(request):
     else:
         deck = PlayerDeck.objects.create(
             owner=request.user, name=name, idol=idol,
-            description=desc, is_public=is_public
+            description=desc, is_public=is_public,
+            card_list_json=_json.dumps(card_ids)      # 중복 포함 원본 저장
         )
         deck.cards.set(cards)
         deck.memory_cards.set(memories)
         messages.success(request, f'덱 "{name}"이 저장되었습니다.')
 
-    return redirect('ViewersPage:deck_list')
+    return redirect('viewersPage:deck_list')
+
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -205,7 +217,7 @@ def deck_toggle_public(request, deck_id):
     deck.save(update_fields=['is_public'])
     status = '공개' if deck.is_public else '비공개'
     messages.success(request, f'덱 "{deck.name}"이 {status}로 변경되었습니다.')
-    return redirect('ViewersPage:deck_list')
+    return redirect('viewersPage:deck_list')
 
 # 덱 삭제 기능
 
@@ -216,7 +228,7 @@ def deck_delete(request, deck_id):
         name = deck.name
         deck.delete()
         messages.success(request, f'덱 "{name}"이 삭제되었습니다.')
-    return redirect('ViewersPage:deck_list')
+    return redirect('viewersPage:deck_list')
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
