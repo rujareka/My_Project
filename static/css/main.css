@@ -1,0 +1,75 @@
+/* ================================================
+   IdolAlive Statistics - 기본 CSS 뼈대
+   실제 디자인은 추후 작업
+   ================================================ */
+:root {
+  --color-bg:       #0f0f1a;
+  --color-surface:  #1a1a2e;
+  --color-primary:  #e91e8c;
+  --color-accent:   #00d4ff;
+  --color-text:     #e8e8f0;
+  --color-muted:    #6e6e8a;
+  --border-radius:  8px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  min-height: 100vh;
+}
+
+/* 네비게이션 */
+.navbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 2rem;
+  background: var(--color-surface);
+  border-bottom: 1px solid rgba(233,30,140,0.3);
+}
+.navbar .logo { font-size: 1.2rem; font-weight: 700; color: var(--color-primary); text-decoration: none; }
+.navbar ul { list-style: none; display: flex; gap: 1.5rem; }
+.navbar a { color: var(--color-text); text-decoration: none; }
+.navbar a:hover { color: var(--color-primary); }
+
+/* 컨테이너 */
+.container { max-width: 1100px; margin: 0 auto; padding: 2rem 1rem; }
+
+/* 테이블 공통 */
+table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); }
+th { background: var(--color-surface); color: var(--color-accent); font-size: 0.85rem; text-transform: uppercase; }
+tr:hover { background: rgba(255,255,255,0.03); }
+
+/* 이미지 */
+.banner-img { height: 36px; vertical-align: middle; margin-right: 8px; border-radius: 4px; }
+.card-img   { height: 28px; vertical-align: middle; margin-right: 6px; border-radius: 3px; }
+
+/* 버튼 */
+.btn { display: inline-block; padding: 0.5rem 1.2rem; background: var(--color-primary); color: #fff; border-radius: var(--border-radius); text-decoration: none; border: none; cursor: pointer; }
+.btn-danger { background: #c0392b; }
+.btn:hover { opacity: 0.85; }
+
+/* 알림 */
+.alert { padding: 0.8rem 1rem; margin-bottom: 1rem; border-radius: var(--border-radius); background: rgba(233,30,140,0.15); border-left: 3px solid var(--color-primary); }
+
+/* 검색바 */
+.search-bar { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+.search-bar input, .search-bar select { padding: 0.5rem 0.75rem; background: var(--color-surface); color: var(--color-text); border: 1px solid var(--color-muted); border-radius: var(--border-radius); }
+
+/* 덱 카드 */
+.deck-card { background: var(--color-surface); padding: 1.2rem; border-radius: var(--border-radius); margin-bottom: 1rem; border: 1px solid rgba(255,255,255,0.08); }
+
+/* 인증 폼 */
+.auth-form { max-width: 400px; margin: 3rem auto; background: var(--color-surface); padding: 2rem; border-radius: var(--border-radius); }
+.auth-form label { display: block; margin-bottom: 1rem; }
+.auth-form input { display: block; width: 100%; margin-top: 0.3rem; padding: 0.6rem; background: var(--color-bg); color: var(--color-text); border: 1px solid var(--color-muted); border-radius: var(--border-radius); }
+
+/* 아이돌 필터 버튼 */
+.filter-bar { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
+.idol-filter-btn { padding: 0.4rem 0.8rem; background: var(--color-surface); border-radius: 20px; text-decoration: none; color: var(--color-text); font-size: 0.85rem; border: 1px solid transparent; }
+.idol-filter-btn.active { border-color: var(--color-primary); color: var(--color-primary); }
+.idol-filter-btn img { height: 20px; vertical-align: middle; margin-right: 4px; }
+
+footer { text-align: center; padding: 2rem; color: var(--color-muted); font-size: 0.85rem; border-top: 1px solid rgba(255,255,255,0.06); }

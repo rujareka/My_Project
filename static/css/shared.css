@@ -1,0 +1,354 @@
+/* ============================================================
+   IdolAlive Statistics — shared.css
+   역할: 기존 index_preview.html 의 CSS 변수를 그대로 유지하면서
+         5개 서브 페이지가 공통으로 쓰는 컴포넌트를 추가
+   base.html 의 <style> 안에 있던 내용을 분리한 파일
+   ============================================================ */
+
+/* ── 기존 index_preview.html 에서 그대로 가져온 토큰 ── */
+:root {
+  --ial-lavender:    #9ba5d4;
+  --ial-lavender-lt: #b8c0e0;
+  --ial-lavender-dk: #7a83b8;
+  --ial-pink:        #e8457a;
+  --ial-pink-lt:     #f0799b;
+  --ial-blue-bar:    #7e9ed6;
+  --ial-red-bar:     #e87688;
+  --ial-gold:        #d4a520;
+  --ial-gold-lt:     #f0c840;
+  --bg-page:         #f5f4f8;
+  --bg-card:         #ffffff;
+  --bg-card-hover:   #fafafe;
+  --text-primary:    #2a2738;
+  --text-secondary:  #6b6880;
+  --text-on-nav:     #ffffff;
+  --border-light:    rgba(155,165,212,0.35);
+  --border-card:     rgba(155,165,212,0.5);
+  --shadow-card:     0 2px 12px rgba(120,130,180,0.12);
+  --shadow-hover:    0 6px 24px rgba(120,130,180,0.22);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 22px;
+  --font-display: 'Bebas Neue', cursive;
+  --font-body:    'Noto Sans KR', sans-serif;
+  --nav-h:        64px;
+  --container-w:  1160px;
+}
+
+/* ── 공통 페이지 래퍼 ── */
+.pg {
+  max-width: var(--container-w);
+  margin: 0 auto;
+  padding: 1.8rem 1.5rem 3rem;
+}
+
+/* ── 페이지 헤더 (타이틀 + 우측 액션) ── */
+.pg-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.4rem;
+  flex-wrap: wrap;
+}
+.pg-head__title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.01em;
+}
+.pg-head__sub {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+/* ── 공통 카드 쉘 (기존 index_preview 와 동일) ── */
+.card {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+.card__header {
+  padding: 0.85rem 1.2rem 0.6rem;
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.card__title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.card__body { padding: 1rem 1.2rem; }
+
+/* ── 버튼 ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0.45rem 1.1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  transition: background 0.15s, opacity 0.15s;
+  white-space: nowrap;
+}
+.btn:active { opacity: 0.85; }
+.btn--lav   { background: var(--ial-lavender); color: white; }
+.btn--lav:hover { background: var(--ial-lavender-dk); }
+.btn--ghost {
+  background: transparent;
+  border: 1.5px solid var(--border-card);
+  color: var(--text-secondary);
+}
+.btn--ghost:hover { background: var(--bg-card-hover); border-color: var(--ial-lavender); color: var(--text-primary); }
+.btn--danger {
+  background: transparent;
+  border: 1.5px solid rgba(232,69,122,0.35);
+  color: var(--ial-pink);
+}
+.btn--danger:hover { background: rgba(232,69,122,0.07); }
+.btn--sm { padding: 0.28rem 0.7rem; font-size: 0.78rem; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── 배지 ── */
+.badge {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 20px;
+  font-size: 0.71rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+.badge--lav    { background: rgba(155,165,212,0.15); color: var(--ial-lavender-dk); }
+.badge--ok     { background: rgba(76,175,125,0.15);  color: #3d9e6a; }
+.badge--warn   { background: rgba(212,165,32,0.15);  color: var(--ial-gold); }
+.badge--pink   { background: rgba(232,69,122,0.12);  color: var(--ial-pink); }
+
+/* ── 태그 (기존 index_preview 동일) ── */
+.tag {
+  display: inline-block;
+  padding: 0.18rem 0.55rem;
+  border-radius: 20px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  background: rgba(155,165,212,0.15);
+  color: var(--ial-lavender-dk);
+}
+
+/* ── 통계 색상 (기존 동일) ── */
+.stat-win  { color: var(--ial-red-bar);   font-weight: 600; }
+.stat-pick { color: var(--ial-blue-bar);  font-weight: 600; }
+.stat-ban  { color: var(--ial-gold);      font-weight: 600; }
+
+/* ── 범용 테이블 ── */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+.data-table th {
+  background: #f0eef8;
+  color: var(--text-secondary);
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.55rem 0.9rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-light);
+  white-space: nowrap;
+}
+.data-table th.sortable { cursor: pointer; user-select: none; }
+.data-table th.sortable:hover { color: var(--ial-lavender-dk); }
+.data-table th .sort-arrow { margin-left: 3px; opacity: 0.5; font-size: 0.65rem; }
+.data-table th.sorted .sort-arrow { opacity: 1; color: var(--ial-lavender-dk); }
+.data-table td {
+  padding: 0.55rem 0.9rem;
+  border-bottom: 0.5px solid var(--border-light);
+  vertical-align: middle;
+  color: var(--text-primary);
+}
+.data-table tr:hover td { background: var(--bg-card-hover); }
+.data-table tr:last-child td { border-bottom: none; }
+
+/* ── 페이지네이션 ── */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  margin-top: 1.4rem;
+  flex-wrap: wrap;
+}
+.pagination a,
+.pagination span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 8px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  border: 1.5px solid var(--border-card);
+  color: var(--text-secondary);
+  background: var(--bg-card);
+  transition: background 0.14s, border-color 0.14s;
+}
+.pagination a:hover       { border-color: var(--ial-lavender); color: var(--ial-lavender-dk); background: var(--bg-card-hover); }
+.pagination span.current  { background: var(--ial-lavender); color: white; border-color: var(--ial-lavender); font-weight: 700; }
+.pagination span.disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* ── 필터 바 ── */
+.filter-bar {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 1.1rem;
+}
+.filter-bar__label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.filter-select {
+  padding: 0.38rem 0.7rem;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-card);
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.filter-select:focus { border-color: var(--ial-lavender); }
+.filter-chip {
+  padding: 0.3rem 0.75rem;
+  border-radius: 20px;
+  border: 1.5px solid var(--border-card);
+  background: var(--bg-card);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.14s;
+}
+.filter-chip:hover,
+.filter-chip.active {
+  border-color: var(--ial-lavender);
+  background: rgba(155,165,212,0.12);
+  color: var(--ial-lavender-dk);
+  font-weight: 600;
+}
+
+/* ── 빈 상태 ── */
+.empty-state {
+  text-align: center;
+  padding: 4rem 1rem 3rem;
+  color: var(--text-secondary);
+}
+.empty-state__icon { font-size: 2.8rem; margin-bottom: 0.8rem; }
+.empty-state__text { font-size: 0.95rem; margin-bottom: 1.2rem; }
+
+/* ── 폼 요소 ── */
+.form-group  { margin-bottom: 1rem; }
+.form-label  {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.35rem;
+}
+.form-input {
+  width: 100%;
+  padding: 0.55rem 0.8rem;
+  background: var(--bg-page);
+  border: 1.5px solid var(--border-card);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.form-input:focus { border-color: var(--ial-lavender); }
+.form-textarea { resize: vertical; min-height: 130px; line-height: 1.65; }
+.form-hint { font-size: 0.75rem; color: var(--text-secondary); margin-top: 3px; }
+
+/* ── 토글 스위치 ── */
+.toggle-row   { display: flex; align-items: center; gap: 0.65rem; }
+.toggle       { position: relative; display: inline-block; width: 40px; height: 22px; flex-shrink: 0; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle__track {
+  position: absolute; inset: 0;
+  background: var(--border-card);
+  border-radius: 99px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.toggle__track::after {
+  content: '';
+  position: absolute;
+  left: 3px; top: 3px;
+  width: 16px; height: 16px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+.toggle input:checked + .toggle__track { background: var(--ial-lavender); }
+.toggle input:checked + .toggle__track::after { transform: translateX(18px); }
+.toggle-label { font-size: 0.84rem; color: var(--text-secondary); }
+
+/* ── 프로그레스 바 ── */
+.progress-track {
+  height: 6px;
+  background: var(--border-light);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.3s;
+  background: var(--ial-lavender);
+}
+.progress-fill--gold { background: var(--ial-gold); }
+
+/* ── 아이돌 미니 아이콘 ── */
+.idol-mini {
+  width: 28px; height: 28px;
+  border-radius: 5px;
+  object-fit: cover;
+  background: #e8e5f0;
+  display: inline-block;
+  vertical-align: middle;
+  border: 1.5px solid var(--border-card);
+}
+
+/* ── 애니메이션 ── */
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(12px); }
+  to   { opacity:1; transform:none; }
+}
+.anim-fade-up { animation: fadeUp 0.38s ease both; }
+
+/* ── 반응형 ── */
+@media(max-width:640px){
+  .pg { padding: 1.2rem 0.9rem 2rem; }
+  .data-table th, .data-table td { padding: 0.45rem 0.6rem; }
+}

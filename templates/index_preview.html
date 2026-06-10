@@ -1,0 +1,394 @@
+auth/login.html<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IdolAlive Statistics — 메인 (프리뷰)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --ial-lavender:    #9ba5d4;
+      --ial-lavender-lt: #b8c0e0;
+      --ial-lavender-dk: #7a83b8;
+      --ial-pink:        #e8457a;
+      --ial-pink-lt:     #f0799b;
+      --ial-blue-bar:    #7e9ed6;
+      --ial-red-bar:     #e87688;
+      --ial-gold:        #d4a520;
+      --ial-gold-lt:     #f0c840;
+      --bg-page:         #f5f4f8;
+      --bg-card:         #ffffff;
+      --bg-card-hover:   #fafafe;
+      --text-primary:    #2a2738;
+      --text-secondary:  #6b6880;
+      --text-on-nav:     #ffffff;
+      --border-light:    rgba(155,165,212,0.35);
+      --border-card:     rgba(155,165,212,0.5);
+      --shadow-card:     0 2px 12px rgba(120,130,180,0.12);
+      --shadow-hover:    0 6px 24px rgba(120,130,180,0.22);
+      --radius-sm: 6px; --radius-md: 10px; --radius-lg: 16px; --radius-xl: 22px;
+      --font-display: 'Bebas Neue', cursive;
+      --font-body:    'Noto Sans KR', sans-serif;
+      --nav-h: 64px;
+      --container-w: 1160px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font-body); background: var(--bg-page); color: var(--text-primary); font-size: 15px; line-height: 1.6; min-height: 100vh; display: flex; flex-direction: column; }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+    ul { list-style: none; }
+
+    /* ── 네비 ── */
+    .navbar { position: sticky; top: 0; z-index: 100; height: var(--nav-h); background: var(--ial-lavender); border-bottom: 2px solid var(--ial-lavender-dk); box-shadow: 0 2px 12px rgba(100,110,160,0.18); }
+    .navbar__inner { max-width: var(--container-w); margin: 0 auto; height: 100%; display: flex; align-items: center; padding: 0 1.5rem; gap: 2rem; }
+    .navbar__logo { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .navbar__logo-img { height: 36px; width: auto; }
+    .navbar__logo-text { font-family: var(--font-display); font-size: 1.5rem; color: white; letter-spacing: 0.08em; text-shadow: 0 1px 4px rgba(0,0,0,0.2); }
+    .navbar__menu { display: flex; align-items: center; gap: 0.25rem; flex: 1; justify-content: center; }
+    .navbar__menu a { padding: 0.45rem 1.1rem; border-radius: var(--radius-sm); color: white; font-weight: 500; font-size: 0.95rem; letter-spacing: 0.03em; transition: background 0.18s; }
+    .navbar__menu a:hover { background: rgba(255,255,255,0.22); }
+    .navbar__auth { display: flex; align-items: center; gap: 0.6rem; flex-shrink: 0; }
+    .btn-nav-auth { padding: 0.38rem 1.1rem; border-radius: var(--radius-sm); font-size: 0.9rem; font-weight: 500; color: white; border: 1.5px solid rgba(255,255,255,0.55); background: transparent; cursor: pointer; font-family: inherit; transition: background 0.18s; }
+    .btn-nav-auth:hover { background: rgba(255,255,255,0.18); }
+    .btn-nav-auth.primary { background: var(--ial-pink); border-color: var(--ial-pink); }
+    .btn-nav-auth.primary:hover { background: var(--ial-pink-lt); }
+
+    /* ── 히어로 ── */
+    .hero { width: 100%; background: var(--bg-card); position: relative; overflow: hidden; border-bottom: 3px solid var(--ial-lavender); }
+    .hero__img { width: 100%; max-height: 420px; object-fit: cover; object-position: center top; display: block; }
+    .hero__overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(155,165,212,0.05) 0%, rgba(155,165,212,0.0) 60%, rgba(245,244,248,0.65) 100%); pointer-events: none; }
+
+    /* ── 레이아웃 ── */
+    .container { max-width: var(--container-w); margin: 0 auto; padding: 0 1.5rem; }
+    main { flex: 1; }
+    .main-grid { display: grid; grid-template-columns: minmax(0,1fr) 340px; gap: 1.5rem; padding: 1.5rem 0 2rem; }
+
+    /* ── 카드 ── */
+    .card { background: var(--bg-card); border: 1.5px solid var(--border-card); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); overflow: hidden; }
+    .card__header { padding: 0.9rem 1.2rem 0.6rem; border-bottom: 1px solid var(--border-light); display: flex; align-items: center; justify-content: space-between; }
+    .card__title { font-size: 1rem; font-weight: 700; color: var(--text-primary); letter-spacing: 0.02em; }
+    .card__body { padding: 1rem 1.2rem; }
+
+    /* 범례 */
+    .chart-legend { display: flex; gap: 1rem; align-items: center; }
+    .chart-legend__item { display: flex; align-items: center; gap: 5px; font-size: 0.82rem; color: var(--text-secondary); }
+    .chart-legend__dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+    .bar-chart-wrap { position: relative; height: 200px; margin: 0.5rem 0 0.8rem; }
+
+    /* 아이돌 아이콘 */
+    .idol-icon-row { display: flex; gap: 0.6rem; align-items: center; padding: 0.4rem 0; }
+    .idol-icon { width: 72px; height: 72px; border-radius: var(--radius-md); object-fit: cover; border: 2px solid var(--border-card); transition: transform 0.18s, box-shadow 0.18s; cursor: pointer; background: #e8e5f0; }
+    .idol-icon:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); }
+    .idol-icon.gold-border { border-color: var(--ial-gold); box-shadow: 0 0 0 1px var(--ial-gold-lt); }
+
+    /* 1위 카드 */
+    .rank1-card { border: 2px solid var(--ial-gold); box-shadow: 0 4px 20px rgba(212,165,32,0.18); }
+    .rank1-card .card__header { background: linear-gradient(135deg,#fff8e8,#fff3d0); border-bottom-color: rgba(212,165,32,0.3); }
+    .rank1-card .card__title { color: var(--ial-gold); }
+    .rank1-img-wrap { position: relative; background: linear-gradient(145deg,#ffeef4,#fff0f8); display: flex; align-items: flex-end; justify-content: center; overflow: hidden; min-height: 220px; }
+    .rank1-img { width: 100%; height: 220px; object-fit: cover; object-position: center top; }
+    .rank1-badge { position: absolute; bottom: 0.7rem; right: 0.7rem; background: rgba(255,255,255,0.92); border: 2px solid var(--ial-gold); border-radius: var(--radius-md); padding: 0.2rem 0.75rem; font-family: var(--font-display); font-size: 1.4rem; color: var(--ial-gold); letter-spacing: 0.06em; line-height: 1.4; }
+
+    /* 조합 테이블 */
+    .combo-scroll-body { max-height: 200px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--ial-lavender) transparent; }
+    .combo-scroll-body::-webkit-scrollbar { width: 5px; }
+    .combo-scroll-body::-webkit-scrollbar-thumb { background: var(--ial-lavender); border-radius: 10px; }
+    .combo-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    .combo-table th { position: sticky; top: 0; background: #f0eef8; color: var(--text-secondary); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border-light); text-align: left; }
+    .combo-table td { padding: 0.5rem 0.75rem; border-bottom: 0.5px solid var(--border-light); vertical-align: middle; }
+    .combo-table tr:hover td { background: var(--bg-card-hover); }
+    .stat-win  { color: var(--ial-red-bar);  font-weight: 600; }
+    .stat-pick { color: var(--ial-blue-bar); font-weight: 600; }
+
+    /* 아이돌 아이콘 (작은) */
+    .idol-mini { width: 28px; height: 28px; border-radius: 6px; object-fit: cover; background: #e8e5f0; display:inline-block; vertical-align: middle; border: 1.5px solid var(--border-card); }
+
+    /* 태그 */
+    .tag { display: inline-block; padding: 0.18rem 0.55rem; border-radius: 20px; font-size: 0.76rem; font-weight: 600; background: rgba(155,165,212,0.15); color: var(--ial-lavender-dk); }
+
+    /* 구분선 */
+    .divider { height: 1px; background: var(--border-light); margin: 1rem 0; }
+
+    /* 아이콘 플레이스홀더 */
+    .icon-placeholder { width: 72px; height: 72px; border-radius: var(--radius-md); background: linear-gradient(135deg, #e0ddf0, #ccc9e0); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: var(--text-secondary); border: 2px solid var(--border-card); }
+
+    /* 푸터 */
+    .footer { background: var(--ial-lavender); border-top: 2px solid var(--ial-lavender-dk); color: white; margin-top: auto; }
+    .footer__inner { max-width: var(--container-w); margin: 0 auto; padding: 1.6rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+    .footer__logo { font-family: var(--font-display); font-size: 1.2rem; letter-spacing: 0.08em; opacity: 0.9; }
+    .footer__links { display: flex; gap: 1.2rem; }
+    .footer__links a { font-size: 0.85rem; opacity: 0.75; transition: opacity 0.16s; }
+    .footer__links a:hover { opacity: 1; }
+    .footer__copy { font-size: 0.8rem; opacity: 0.6; width: 100%; text-align: center; padding-top: 0.6rem; border-top: 1px solid rgba(255,255,255,0.2); }
+
+    /* 반응형 */
+    @media(max-width:900px){ .main-grid{ grid-template-columns:1fr; } }
+    @media(max-width:640px){ .navbar__menu,.navbar__auth{display:none;} .hero__img{max-height:220px;} .container{padding:0 0.9rem;} .main-grid{gap:1rem;padding:1rem 0 1.5rem;} }
+
+    /* 애니 */
+    @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:none} }
+    .anim-fade-up { animation: fadeUp 0.42s ease both; }
+    .anim-delay-1 { animation-delay:0.07s; }
+    .anim-delay-2 { animation-delay:0.14s; }
+    .anim-delay-3 { animation-delay:0.21s; }
+  </style>
+</head>
+<body>
+
+<!-- ===== 네비 ===== -->
+<nav class="navbar">
+  <div class="navbar__inner">
+    <a href="#" class="navbar__logo">
+      <img class="navbar__logo-img"
+        src="https://lh3.googleusercontent.com/sitesv/AA5AbUAURngJgVVpXqbHCl6V0YltmApl-sH9q9nymcZnc6JrWkBua8BLr1sgGWl08L3uprzdp0zTNG4_cMbjvwadDI0FonEEozJoxGTM5-9zFtJL09CkJ34gWnxu973awQ2RRpzlCZ87IDXgbggHWgtG3dSax3KmGv6Tn91_eoHk2kBJVLe2s7ixCBDIYiUeQwo=w400"
+        alt="IDOL A LIVE"
+        onerror="this.style.display='none'"
+      >
+      <span class="navbar__logo-text">타이틀</span>
+    </a>
+    <ul class="navbar__menu">
+      <li><a href="#">내 덱</a></li>
+      <li><a href="#">카드 일람</a></li>
+      <li><a href="#">통계</a></li>
+      <li><a href="#">대전 기록</a></li>
+    </ul>
+    <div class="navbar__auth">
+      <button class="btn-nav-auth">로그인</button>
+      <button class="btn-nav-auth primary">회원가입</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ===== 히어로 ===== -->
+<div class="hero">
+  <img class="hero__img"
+    src="https://lh3.googleusercontent.com/sitesv/AA5AbUBIETBgt8O383EiiUPNRj6eDyzO7pz1etpK1hPIVjpJZCc_vSkGXGzS1pwD21s7HOPD0JoszpD-rAzd3zbF6F7WU7_OyfCdW1bTx91Jr1X_SSUhOsljWPMnmvFHOLeohiSi6upByUqTiWzn7kJNm18pI4GhFEt4nwhLMtS2o2wACTxyVTtHDKxLY5WItC5wOb540KXblKaCuKGbCt6wckZ6HhcrC6ySKEv6LFuBPj0=w1280"
+    alt="IDOL A LIVE 키비주얼"
+    onerror="this.src=''; this.style.minHeight='280px'; this.style.background='linear-gradient(135deg,#c5cae8,#9fa8da)';"
+  >
+  <div class="hero__overlay"></div>
+</div>
+
+<!-- ===== 메인 콘텐츠 ===== -->
+<main>
+<div class="container">
+<div class="main-grid">
+
+  <!-- ── 좌측: 상위권 캐릭터 차트 ── -->
+  <div style="display:flex; flex-direction:column; gap:1.5rem;">
+
+    <div class="card anim-fade-up">
+      <div class="card__header">
+        <span class="card__title">상위권 캐릭터</span>
+        <div class="chart-legend">
+          <div class="chart-legend__item">
+            <div class="chart-legend__dot" style="background:var(--ial-red-bar);"></div>
+            승률
+          </div>
+          <div class="chart-legend__item">
+            <div class="chart-legend__dot" style="background:var(--ial-blue-bar);"></div>
+            픽률
+          </div>
+        </div>
+      </div>
+      <div class="card__body">
+        <div class="bar-chart-wrap">
+          <canvas id="topChart"></canvas>
+        </div>
+        <!-- 아이돌 아이콘 행 -->
+        <div class="idol-icon-row">
+          <!-- 실제 이미지가 없으므로 플레이스홀더 -->
+          <div class="icon-placeholder gold-border" style="border-color:var(--ial-gold); box-shadow: 0 0 0 1px var(--ial-gold-lt);">1위</div>
+          <div class="icon-placeholder">2위</div>
+          <div class="icon-placeholder">3위</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 조합 통계 ── -->
+    <div class="card anim-fade-up anim-delay-2">
+      <div class="card__header">
+        <span class="card__title">조합 통계</span>
+        <span style="font-size:0.8rem; color:var(--text-secondary);">스크롤 가능</span>
+      </div>
+      <div class="combo-scroll-body">
+        <table class="combo-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>캐릭터 조합</th>
+              <th>픽률</th>
+              <th>승률</th>
+              <th>게임 수</th>
+            </tr>
+          </thead>
+          <tbody id="comboTableBody">
+            <!-- JS로 채워짐 -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── 우측: 1위 소개 카드 ── -->
+  <div style="display:flex; flex-direction:column; gap:1.5rem;">
+
+    <div class="card rank1-card anim-fade-up anim-delay-1">
+      <div class="card__header">
+        <span class="card__title">👑 1위</span>
+        <span class="tag">이번 시즌</span>
+      </div>
+      <div class="rank1-img-wrap">
+        <img class="rank1-img"
+          src="https://lh3.googleusercontent.com/sitesv/AA5AbUANkNUXZ3lW1M5B7NB_vDKpUra8npRXYXT0srFEJP6EyXSmrtLuZcvXhm2oal79pKrvDQHFy1oZO7dgl4IrfTwDWS3CdzrVu42mwlPu2NnPAkBCD_Y9dJLPqvJ28LtzanT0RPH73em0cDTxF8AkALaoZtNqyYyckoNGVDzs9Ylw4H-ZkTG3EFZegwaK1xpcQxRJzLyHdgiLS_8ep5iDQOHdnNyLlZY2zjInUGTdTU0=w1280"
+          alt="1위 캐릭터"
+          onerror="this.style.display='none'; this.parentElement.style.minHeight='220px'; this.parentElement.style.background='linear-gradient(145deg,#ffeef4,#e8d8f0)';"
+        >
+        <div class="rank1-badge">（왕관）<br>1 위</div>
+      </div>
+      <div class="card__body">
+        <p style="font-size:0.88rem; color:var(--text-secondary); line-height:1.6;">
+          아이돌 이름<br>
+          <span style="font-size:0.82rem;">승률 <b class="stat-win">—%</b> &nbsp; 픽률 <b class="stat-pick">—%</b></span>
+        </p>
+      </div>
+    </div>
+
+    <!-- 간단 통계 요약 -->
+    <div class="card anim-fade-up anim-delay-3">
+      <div class="card__header">
+        <span class="card__title">시즌 요약</span>
+      </div>
+      <div class="card__body" style="display:grid; grid-template-columns:1fr 1fr; gap:0.9rem;">
+        <div style="text-align:center; padding:0.7rem; background:#f8f7fc; border-radius:var(--radius-md);">
+          <p style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:3px;">총 대전 수</p>
+          <p style="font-family:var(--font-display); font-size:1.8rem; color:var(--text-primary); letter-spacing:0.05em;" id="totalGames">—</p>
+        </div>
+        <div style="text-align:center; padding:0.7rem; background:#f8f7fc; border-radius:var(--radius-md);">
+          <p style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:3px;">참여 캐릭터</p>
+          <p style="font-family:var(--font-display); font-size:1.8rem; color:var(--text-primary); letter-spacing:0.05em;" id="totalIdols">—</p>
+        </div>
+        <div style="text-align:center; padding:0.7rem; background:#f8f7fc; border-radius:var(--radius-md);">
+          <p style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:3px;">총 카드 수</p>
+          <p style="font-family:var(--font-display); font-size:1.8rem; color:var(--text-primary); letter-spacing:0.05em;" id="totalCards">—</p>
+        </div>
+        <div style="text-align:center; padding:0.7rem; background:#f8f7fc; border-radius:var(--radius-md);">
+          <p style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:3px;">현재 시즌</p>
+          <p style="font-family:var(--font-display); font-size:1.8rem; color:var(--ial-lavender-dk); letter-spacing:0.05em;">S1</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div><!-- /main-grid -->
+</div><!-- /container -->
+</main>
+
+<!-- ===== 푸터 ===== -->
+<footer class="footer">
+  <div class="footer__inner">
+    <div class="footer__logo">IDOLALIVE STATISTICS</div>
+    <nav class="footer__links">
+      <a href="#">통계</a>
+      <a href="#">카드 일람</a>
+      <a href="#">대전 기록</a>
+      <a href="https://www.idolalive.com/" target="_blank" rel="noopener">공식 사이트 ↗</a>
+    </nav>
+    <p class="footer__copy">
+      © 2025 IdolAlive Statistics &nbsp;|&nbsp;
+      IDOL A LIVE is © SUSABI GAMES. This is a fan-made statistics site.
+    </p>
+  </div>
+</footer>
+
+<script>
+/* ── 상위권 차트 (Chart.js) ── */
+(function () {
+  const labels = ['キャラ A', 'キャラ B', 'キャラ C'];
+  // 더미 데이터 — Django 통합 시 {{ idol_data|safe }} 로 교체
+  const winRates  = [68, 54, 41];
+  const pickRates = [72, 61, 55];
+
+  const ctx = document.getElementById('topChart');
+  if (!ctx) return;
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: '승률 (%)',
+          data: winRates,
+          backgroundColor: 'rgba(232,118,136,0.82)',
+          borderRadius: 5,
+          borderSkipped: false,
+        },
+        {
+          label: '픽률 (%)',
+          data: pickRates,
+          backgroundColor: 'rgba(126,158,214,0.82)',
+          borderRadius: 5,
+          borderSkipped: false,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${ctx.dataset.label}: ${ctx.raw}%`
+          }
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { family: 'Noto Sans KR', size: 12 } } },
+        y: {
+          beginAtZero: true, max: 100,
+          grid: { color: 'rgba(155,165,212,0.15)' },
+          ticks: { callback: v => v + '%', font: { size: 11 } }
+        }
+      }
+    }
+  });
+})();
+
+/* ── 조합 통계 더미 데이터 ── */
+(function () {
+  const combos = [
+    { rank:1, names:'キャラA + キャラB', pick:'42.1%', win:'61.3%', games:38 },
+    { rank:2, names:'キャラA + キャラC', pick:'35.6%', win:'58.2%', games:32 },
+    { rank:3, names:'キャラB + キャラC', pick:'28.9%', win:'55.0%', games:26 },
+    { rank:4, names:'キャラA + キャラD', pick:'22.2%', win:'52.4%', games:20 },
+    { rank:5, names:'キャラC + キャラD', pick:'18.8%', win:'49.1%', games:17 },
+    { rank:6, names:'キャラB + キャラD', pick:'15.5%', win:'46.7%', games:14 },
+  ];
+  const tbody = document.getElementById('comboTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = combos.map(c => `
+    <tr>
+      <td style="color:var(--text-secondary); font-weight:600;">${c.rank}</td>
+      <td>${c.names}</td>
+      <td class="stat-pick">${c.pick}</td>
+      <td class="stat-win">${c.win}</td>
+      <td style="color:var(--text-secondary);">${c.games}</td>
+    </tr>
+  `).join('');
+})();
+
+/* ── 통계 요약 더미 ── */
+document.getElementById('totalGames').textContent = '124';
+document.getElementById('totalIdols').textContent = '6';
+document.getElementById('totalCards').textContent = '68';
+</script>
+</body>
+</html>

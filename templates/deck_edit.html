@@ -1,0 +1,326 @@
+{% extends "base.html" %}{% load static %}
+{% block title %}덱 편집 | IdolAlive Statistics{% endblock %}
+
+{% block content %}
+<div class="pg" style="max-width:1300px">
+
+  <div class="pg-head">
+    <div>
+      <p class="pg-head__title">덱 편집</p>
+      <p class="pg-head__sub">메인 카드 18장 · 메모리 카드 3장 선택 후 저장하세요</p>
+    </div>
+    <a href="{% url 'viewersPage:deck_list' %}" class="btn btn--ghost">← 목록으로</a>
+  </div>
+
+  <form method="post" action="{% url 'viewersPage:deck_save' %}" id="deckForm">
+    {% csrf_token %}
+    {% if deck %}<input type="hidden" name="deck_id" value="{{ deck.id }}">{% endif %}
+    <input type="hidden" name="idol_ids"          value="{{ idol_ids }}">
+    <input type="hidden" name="selected_cards"    id="hCards">
+    <input type="hidden" name="selected_memories" id="hMem">
+
+    <div class="edit-wrap">
+
+      <!-- ══════════════════════════════════
+           좌: 카드 풀 패널
+           ══════════════════════════════════ -->
+      <div class="edit-panel card">
+
+        <!-- 아이돌 탭 + 메모리 탭 -->
+        <div class="edit-tabs">
+          {% for idol in selected_idols %}
+          <button type="button"
+            class="edit-tab{% if forloop.first %} active{% endif %}"
+            data-pool="pool-{{ idol.idol_id }}"
+            onclick="switchTab(this)">
+            {% if idol.icon_img_url %}<img src="{{ idol.icon_img_url }}" alt="">{% endif %}
+            {{ idol.name }}
+          </button>
+          {% endfor %}
+          <button type="button" class="edit-tab" data-pool="pool-memory" onclick="switchTab(this)">
+            💎 메모리
+          </button>
+        </div>
+
+        <!-- 각 아이돌 카드 풀 -->
+        {% for idol in selected_idols %}
+        <div class="card-pool" id="pool-{{ idol.idol_id }}"
+             style="{% if not forloop.first %}display:none{% endif %}">
+          <div class="card-pool__grid">
+            {% for c in idol.cards.all %}
+            <div class="p-card{% if deck and c in deck.cards.all %} selected{% endif %}"
+                 data-id="{{ c.card_id }}" data-kind="main"
+                 onclick="toggleCard(this)"
+                 title="{{ c.name }}&#10;Lv.{{ c.card_level }}  ⚡{{ c.voltage }}&#10;{{ c.effect }}">
+              <div class="p-card__art">
+                {% if c.card_img_url %}<img src="{{ c.card_img_url }}" alt="{{ c.name }}">
+                {% else %}<span class="p-card__ph">{{ c.name|slice:":2" }}</span>{% endif %}
+              </div>
+              <p class="p-card__name">{{ c.name }}</p>
+              <div class="p-card__meta">
+                <span style="color:var(--ial-lavender-dk)">Lv.{{ c.card_level }}</span>
+                <span style="color:var(--text-secondary)">⚡{{ c.voltage }}</span>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+
+        <!-- 메모리 카드 풀 -->
+        <div class="card-pool" id="pool-memory" style="display:none">
+          <div class="card-pool__grid">
+            {% for m in memory_cards %}
+            <div class="p-card{% if deck and m in deck.memory_cards.all %} selected{% endif %}"
+                 data-id="{{ m.memory_id }}" data-kind="memory"
+                 onclick="toggleCard(this)"
+                 title="{{ m.name }}&#10;{{ m.effect }}">
+              <div class="p-card__art">
+                {% if m.card_img_url %}<img src="{{ m.card_img_url }}" alt="{{ m.name }}">
+                {% else %}<span class="p-card__ph">{{ m.name|slice:":2" }}</span>{% endif %}
+              </div>
+              <p class="p-card__name">{{ m.name }}</p>
+              <p class="p-card__effect">{{ m.effect|truncatechars:26 }}</p>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+      </div><!-- /edit-panel -->
+
+      <!-- ══════════════════════════════════
+           우: 덱 정보 사이드바
+           ══════════════════════════════════ -->
+      <div class="edit-sidebar">
+
+        <!-- 완성도 -->
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card__header">
+            <span class="card__title">덱 현황</span>
+            <span class="badge" id="completeBadge" style="background:rgba(212,165,32,0.15);color:var(--ial-gold)">미완성</span>
+          </div>
+          <div class="card__body" style="display:flex;flex-direction:column;gap:.6rem">
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+                <span style="font-size:.82rem;color:var(--text-secondary)">메인 카드</span>
+                <span style="font-size:.82rem;font-weight:600" id="cntMain">0 / 18</span>
+              </div>
+              <div class="progress-track"><div class="progress-fill" id="barMain" style="width:0%"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+                <span style="font-size:.82rem;color:var(--text-secondary)">메모리 카드</span>
+                <span style="font-size:.82rem;font-weight:600" id="cntMem">0 / 3</span>
+              </div>
+              <div class="progress-track"><div class="progress-fill progress-fill--gold" id="barMem" style="width:0%"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 덱 이름 -->
+        <div class="form-group">
+          <label class="form-label" for="fName">덱 이름</label>
+          <input class="form-input" id="fName" name="name" type="text"
+            value="{{ deck.name|default:'' }}" placeholder="덱 이름" maxlength="100" required>
+        </div>
+
+        <!-- 덱 설명 (메모장 크기) -->
+        <div class="form-group">
+          <label class="form-label" for="fDesc">
+            덱 설명
+            <span class="form-hint" style="margin:0"><span id="descLen">0</span>/1000</span>
+          </label>
+          <textarea class="form-input form-textarea" id="fDesc" name="description"
+            placeholder="덱 전략, 사용법, 주의사항 등..." maxlength="1000"
+            rows="7">{{ deck.description|default:'' }}</textarea>
+        </div>
+
+        <!-- 공개 설정 -->
+        <div class="form-group">
+          <label class="form-label">공개 설정</label>
+          <div class="toggle-row">
+            <label class="toggle">
+              <input type="checkbox" name="is_public" id="fPublic"
+                {% if deck.is_public %}checked{% endif %}>
+              <span class="toggle__track"></span>
+            </label>
+            <span class="toggle-label" id="publicLbl">
+              {% if deck.is_public %}🔓 공개 — 덱 일람에 표시됩니다{% else %}🔒 비공개{% endif %}
+            </span>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn--lav" id="saveBtn"
+          style="width:100%;justify-content:center;padding:.65rem" disabled>
+          덱 저장
+        </button>
+        <p class="form-hint" id="saveHint" style="text-align:center;margin-top:.4rem">
+          메인 18장 + 메모리 3장을 채워야 저장할 수 있습니다
+        </p>
+
+      </div><!-- /edit-sidebar -->
+    </div><!-- /edit-wrap -->
+  </form>
+
+</div>
+
+<style>
+.edit-wrap {
+  display: grid;
+  grid-template-columns: 1fr 290px;
+  gap: 1.2rem;
+  align-items: start;
+}
+@media(max-width:860px) { .edit-wrap { grid-template-columns: 1fr; } }
+
+/* 탭 */
+.edit-tabs {
+  display: flex;
+  gap: .4rem;
+  flex-wrap: wrap;
+  padding: .8rem 1rem .6rem;
+  border-bottom: 1px solid var(--border-light);
+}
+.edit-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: .32rem .8rem;
+  border: 1.5px solid var(--border-card);
+  border-radius: var(--radius-sm);
+  font-size: .82rem;
+  font-weight: 500;
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .15s;
+}
+.edit-tab img  { width: 20px; height: 20px; border-radius: 4px; object-fit: cover; }
+.edit-tab.active {
+  border-color: var(--ial-lavender);
+  background: rgba(155,165,212,.12);
+  color: var(--ial-lavender-dk);
+  font-weight: 700;
+}
+
+/* 카드 풀 */
+.card-pool { padding: .8rem 1rem; }
+.card-pool__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(82px, 1fr));
+  gap: .55rem;
+  max-height: calc(100vh - 240px);
+  overflow-y: auto;
+  padding-right: 3px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--ial-lavender) transparent;
+}
+.card-pool__grid::-webkit-scrollbar       { width: 4px; }
+.card-pool__grid::-webkit-scrollbar-thumb { background: var(--ial-lavender); border-radius: 99px; }
+
+/* 카드 아이템 */
+.p-card {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-card);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform .14s, border-color .14s, box-shadow .14s;
+  position: relative;
+}
+.p-card:hover    { transform: translateY(-2px); box-shadow: var(--shadow-card); }
+.p-card.selected {
+  border-color: var(--ial-lavender);
+  box-shadow: 0 0 0 1px var(--ial-lavender);
+}
+/* 선택 오버레이 점 */
+.p-card.selected::after {
+  content: '✓';
+  position: absolute;
+  top: 3px; right: 5px;
+  font-size: .75rem;
+  font-weight: 700;
+  color: var(--ial-lavender);
+  text-shadow: 0 0 4px white;
+}
+.p-card__art {
+  aspect-ratio: 5/7;
+  background: #e8e5f0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.p-card__art img { width:100%;height:100%;object-fit:cover; }
+.p-card__ph      { font-size:1rem;font-weight:700;color:var(--text-secondary); }
+.p-card__name    { font-size:.62rem;font-weight:600;padding:2px 3px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.p-card__meta    { display:flex;justify-content:space-between;padding:1px 3px 3px;font-size:.58rem; }
+.p-card__effect  { font-size:.6rem;color:var(--text-secondary);padding:1px 3px 3px;line-height:1.3; }
+</style>
+
+<script>
+const MAIN_MAX = 18, MEM_MAX = 3;
+let selMain = new Set(), selMem = new Set();
+
+/* 기존 덱 편집 시 초기값 */
+{% if deck %}
+{% for c in deck.cards.all        %}selMain.add("{{ c.card_id }}");{% endfor %}
+{% for m in deck.memory_cards.all %}selMem.add("{{ m.memory_id }}");{% endfor %}
+{% endif %}
+
+function switchTab(btn) {
+  document.querySelectorAll('.edit-tab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.card-pool').forEach(p => p.style.display = 'none');
+  btn.classList.add('active');
+  document.getElementById(btn.dataset.pool).style.display = '';
+}
+
+function toggleCard(el) {
+  const id   = el.dataset.id;
+  const kind = el.dataset.kind;
+  if (kind === 'memory') {
+    if (selMem.has(id))  { selMem.delete(id); el.classList.remove('selected'); }
+    else if (selMem.size < MEM_MAX) { selMem.add(id); el.classList.add('selected'); }
+  } else {
+    if (selMain.has(id)) { selMain.delete(id); el.classList.remove('selected'); }
+    else if (selMain.size < MAIN_MAX) { selMain.add(id); el.classList.add('selected'); }
+  }
+  refresh();
+}
+
+function refresh() {
+  const mc = selMain.size, me = selMem.size;
+  document.getElementById('cntMain').textContent = `${mc} / ${MAIN_MAX}`;
+  document.getElementById('cntMem').textContent  = `${me} / ${MEM_MAX}`;
+  document.getElementById('barMain').style.width = `${mc/MAIN_MAX*100}%`;
+  document.getElementById('barMem').style.width  = `${me/MEM_MAX*100}%`;
+  const done = mc === MAIN_MAX && me === MEM_MAX;
+  document.getElementById('saveBtn').disabled = !done;
+  document.getElementById('saveHint').style.display = done ? 'none' : '';
+  const badge = document.getElementById('completeBadge');
+  badge.textContent = done ? '완성' : '미완성';
+  badge.style.background = done ? 'rgba(76,175,125,.15)' : 'rgba(212,165,32,.15)';
+  badge.style.color       = done ? '#3d9e6a' : 'var(--ial-gold)';
+}
+
+document.getElementById('fPublic').addEventListener('change', function() {
+  document.getElementById('publicLbl').textContent =
+    this.checked ? '🔓 공개 — 덱 일람에 표시됩니다' : '🔒 비공개';
+});
+document.getElementById('fDesc').addEventListener('input', function() {
+  document.getElementById('descLen').textContent = this.value.length;
+});
+document.getElementById('deckForm').addEventListener('submit', function() {
+  document.getElementById('hCards').value = [...selMain].join(',');
+  document.getElementById('hMem').value   = [...selMem].join(',');
+});
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.p-card.selected').forEach(el => {
+    el.dataset.kind === 'memory' ? selMem.add(el.dataset.id) : selMain.add(el.dataset.id);
+  });
+  refresh();
+  document.getElementById('descLen').textContent = document.getElementById('fDesc').value.length;
+});
+</script>
+{% endblock %}

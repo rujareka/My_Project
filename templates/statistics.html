@@ -1,0 +1,242 @@
+{% extends "base.html" %}{% load static %}
+{% block title %}통계 | IdolAlive Statistics{% endblock %}
+
+{% block content %}
+<div class="pg">
+
+  <div class="pg-head">
+    <div>
+      <p class="pg-head__title">통계</p>
+      <p class="pg-head__sub">총 {{ total_duels }}경기 기준</p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════
+       상단: 통계 테이블 + 1위 카드
+       ══════════════════════════ -->
+  <div class="stats-top-grid">
+
+    <!-- 좌: 아이돌 통계 테이블 -->
+    <div class="card">
+      <div class="card__header">
+        <span class="card__title">캐릭터 통계</span>
+        <span class="tag">{{ total_duels }}경기</span>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>캐릭터</th>
+              <th class="sortable sorted" data-col="pick_rate" onclick="sortTable(this)">픽률 <span class="sort-arrow">▼</span></th>
+              <th class="sortable" data-col="pick_count"  onclick="sortTable(this)">픽 횟수 <span class="sort-arrow">▼</span></th>
+              <th class="sortable" data-col="win_rate"    onclick="sortTable(this)">승률 <span class="sort-arrow">▼</span></th>
+              <th class="sortable" data-col="win_count"   onclick="sortTable(this)">승 횟수 <span class="sort-arrow">▼</span></th>
+              <th class="sortable" data-col="ban_rate"    onclick="sortTable(this)">밴률 <span class="sort-arrow">▼</span></th>
+            </tr>
+          </thead>
+          <tbody id="statsTbody">
+            {% for idol in idols %}
+            <tr
+              data-pick-rate="{{ idol.pick_rate }}"
+              data-pick-count="{{ idol.pick_count }}"
+              data-win-rate="{{ idol.win_rate }}"
+              data-win-count="{{ idol.win_count }}"
+              data-ban-rate="{{ idol.ban_rate }}"
+            >
+              <td style="color:var(--text-secondary);font-weight:700">{{ forloop.counter }}</td>
+              <td>
+                <div style="display:flex;align-items:center;gap:.5rem">
+                  {% if idol.icon_img_url %}
+                    <img src="{{ idol.icon_img_url }}" alt="{{ idol.name }}" class="idol-mini">
+                  {% endif %}
+                  <a href="{% url 'viewersPage:idol_detail' idol.idol_id %}"
+                    style="font-weight:600;color:var(--ial-lavender-dk)">{{ idol.name }}</a>
+                </div>
+              </td>
+              <td class="stat-pick">{{ idol.pick_rate }}%</td>
+              <td>{{ idol.pick_count }}</td>
+              <td class="stat-win">{{ idol.win_rate }}%</td>
+              <td>{{ idol.win_count }}</td>
+              <td class="stat-ban">{{ idol.ban_rate }}%</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-secondary)">데이터 없음</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 우: 픽률 1위 캐릭터 -->
+    {% if idols %}
+    {% with rank1=idols.0 %}
+    <div class="card rank1-card">
+      <div class="card__header" style="background:linear-gradient(135deg,#fff8e8,#fff3d0);border-bottom-color:rgba(212,165,32,.3)">
+        <span class="card__title" style="color:var(--ial-gold)">👑 픽률 1위</span>
+        <span class="tag">이번 시즌</span>
+      </div>
+      <div class="rank1-img-wrap">
+        {% if rank1.banner_img_url %}
+          <img class="rank1-img" src="{{ rank1.banner_img_url }}" alt="{{ rank1.name }}">
+        {% else %}
+          <div class="rank1-img" style="background:linear-gradient(145deg,#ffeef4,#fff0f8);display:flex;align-items:center;justify-content:center;font-size:3rem">?</div>
+        {% endif %}
+        <div class="rank1-badge">（왕관）<br>1 위</div>
+      </div>
+      <div class="card__body">
+        <p style="font-weight:700;font-size:1rem;margin-bottom:.4rem">{{ rank1.name }}</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
+          <div class="stat-box">
+            <p class="stat-box__label">픽률</p>
+            <p class="stat-box__val stat-pick">{{ rank1.pick_rate }}%</p>
+          </div>
+          <div class="stat-box">
+            <p class="stat-box__label">승률</p>
+            <p class="stat-box__val stat-win">{{ rank1.win_rate }}%</p>
+          </div>
+          <div class="stat-box">
+            <p class="stat-box__label">픽 횟수</p>
+            <p class="stat-box__val">{{ rank1.pick_count }}</p>
+          </div>
+          <div class="stat-box">
+            <p class="stat-box__label">밴률</p>
+            <p class="stat-box__val stat-ban">{{ rank1.ban_rate }}%</p>
+          </div>
+        </div>
+        {% if rank1.leader_gimmick %}
+        <p style="font-size:.78rem;color:var(--text-secondary);margin-top:.7rem;line-height:1.55;border-top:1px solid var(--border-light);padding-top:.6rem">
+          {{ rank1.leader_gimmick|truncatechars:80 }}
+        </p>
+        {% endif %}
+      </div>
+    </div>
+    {% endwith %}
+    {% endif %}
+
+  </div><!-- /stats-top-grid -->
+
+  <!-- ══════════════════════════
+       하단: 전체 바 차트 (9명)
+       ══════════════════════════ -->
+  <div class="card" style="margin-top:1.2rem">
+    <div class="card__header">
+      <span class="card__title">캐릭터별 픽률 / 승률</span>
+      <div class="chart-legend">
+        <div class="chart-legend__item">
+          <div class="chart-legend__dot" style="background:var(--ial-red-bar)"></div>승률
+        </div>
+        <div class="chart-legend__item">
+          <div class="chart-legend__dot" style="background:var(--ial-blue-bar)"></div>픽률
+        </div>
+      </div>
+    </div>
+    <div class="card__body">
+      <div class="bar-chart-wrap" style="height:260px">
+        <canvas id="allChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<style>
+/* 상단 그리드: 테이블(좌) + 1위 카드(우) */
+.stats-top-grid {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 1.2rem;
+  align-items: start;
+}
+@media(max-width:860px) { .stats-top-grid { grid-template-columns: 1fr; } }
+
+/* 1위 카드 (기존 index_preview 와 동일) */
+.rank1-card { border: 2px solid var(--ial-gold); box-shadow: 0 4px 20px rgba(212,165,32,.18); }
+.rank1-img-wrap {
+  position: relative;
+  background: linear-gradient(145deg,#ffeef4,#fff0f8);
+  overflow: hidden;
+  min-height: 200px;
+}
+.rank1-img { width:100%; height:200px; object-fit:cover; object-position:center top; display:block; }
+.rank1-badge {
+  position: absolute; bottom:.6rem; right:.6rem;
+  background: rgba(255,255,255,.92);
+  border: 2px solid var(--ial-gold);
+  border-radius: var(--radius-md);
+  padding: .15rem .65rem;
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  color: var(--ial-gold);
+  letter-spacing: .06em;
+  line-height: 1.4;
+  text-align: center;
+}
+
+/* 통계 박스 */
+.stat-box { background: #f8f7fc; border-radius: var(--radius-sm); padding: .45rem .6rem; text-align:center; }
+.stat-box__label { font-size:.72rem; color:var(--text-secondary); margin-bottom:2px; }
+.stat-box__val   { font-family:var(--font-display); font-size:1.4rem; letter-spacing:.04em; color:var(--text-primary); line-height:1; }
+
+/* 차트 범례 (기존 동일) */
+.chart-legend       { display:flex; gap:1rem; align-items:center; }
+.chart-legend__item { display:flex; align-items:center; gap:5px; font-size:.82rem; color:var(--text-secondary); }
+.chart-legend__dot  { width:12px; height:12px; border-radius:3px; flex-shrink:0; }
+.bar-chart-wrap     { position:relative; }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+/* ── 전체 바 차트 ── */
+(function(){
+  const labels    = {{ chart_labels|safe }};
+  const winRates  = {{ chart_win_rates|safe }};
+  const pickRates = {{ chart_pick_rates|safe }};
+  const ctx = document.getElementById('allChart');
+  if (!ctx || !labels.length) return;
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label:'승률(%)',  data:winRates,  backgroundColor:'rgba(232,118,136,.82)', borderRadius:4, borderSkipped:false },
+        { label:'픽률(%)',  data:pickRates, backgroundColor:'rgba(126,158,214,.82)', borderRadius:4, borderSkipped:false }
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins: { legend:{display:false}, tooltip:{ callbacks:{ label:c=>` ${c.dataset.label}: ${c.raw}%` } } },
+      scales: {
+        x: { grid:{display:false}, ticks:{font:{family:'Noto Sans KR',size:12}} },
+        y: { beginAtZero:true, max:100, grid:{color:'rgba(155,165,212,.15)'}, ticks:{callback:v=>v+'%',font:{size:11}} }
+      }
+    }
+  });
+})();
+
+/* ── 테이블 정렬 ── */
+let sortDir = -1; // -1=내림차순, 1=오름차순
+let sortCol = 'pick_rate';
+
+function sortTable(th) {
+  const col = th.dataset.col;
+  if (sortCol === col) sortDir *= -1;
+  else { sortCol = col; sortDir = -1; }
+
+  document.querySelectorAll('.data-table th').forEach(h => h.classList.remove('sorted'));
+  th.classList.add('sorted');
+
+  const tbody = document.getElementById('statsTbody');
+  const rows  = [...tbody.querySelectorAll('tr')];
+  rows.sort((a,b) => {
+    const va = parseFloat(a.dataset[col.replace(/_([a-z])/g, (_,c)=>c.toUpperCase())] || 0);
+    const vb = parseFloat(b.dataset[col.replace(/_([a-z])/g, (_,c)=>c.toUpperCase())] || 0);
+    return (vb - va) * sortDir;
+  });
+  rows.forEach((r,i) => {
+    r.querySelector('td').textContent = i+1;
+    tbody.appendChild(r);
+  });
+}
+</script>
+{% endblock %}

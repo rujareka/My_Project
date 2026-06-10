@@ -1,0 +1,187 @@
+{% extends "base.html" %}{% load static %}
+{% block title %}대전 기록 | IdolAlive Statistics{% endblock %}
+
+{% block content %}
+<div class="pg">
+
+  <div class="pg-head">
+    <div>
+      <p class="pg-head__title">대전 기록</p>
+      <p class="pg-head__sub">총 {{ page_obj.paginator.count }}경기</p>
+    </div>
+    <!-- 검색 -->
+    <form method="get" class="filter-bar" style="margin:0">
+      <input class="form-input" style="width:180px;padding:.38rem .7rem"
+        type="text" name="q" value="{{ query }}" placeholder="플레이어 검색">
+      <select class="filter-select" name="idol" onchange="this.form.submit()">
+        <option value="">캐릭터 전체</option>
+        {% for idol in idols %}
+        <option value="{{ idol.idol_id }}" {% if selected_idol == idol.idol_id %}selected{% endif %}>
+          {{ idol.name }}
+        </option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="btn btn--lav btn--sm">검색</button>
+      {% if query or selected_idol %}
+        <a href="{% url 'viewersPage:duel_list' %}" class="btn btn--ghost btn--sm">초기화</a>
+      {% endif %}
+    </form>
+  </div>
+
+  <!-- ── 대전 기록 테이블 ── -->
+  <div class="card">
+    <div style="overflow-x:auto">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th style="width:40px">#</th>
+            <th>P1</th>
+            <th style="text-align:center;width:60px">결과</th>
+            <th>P2</th>
+            <th>선택 캐릭터</th>
+            <th>시즌</th>
+            <th>날짜</th>
+            <th>출처</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for duel in page_obj %}
+          <tr class="duel-row">
+            <!-- 순번 (전체 기준) -->
+            <td style="color:var(--text-secondary)">
+              {{ page_obj.paginator.count|add:"-"|add:forloop.counter0|add:"1"|add:page_offset }}
+            </td>
+
+            <!-- P1 -->
+            <td>
+              <span class="{% if duel.winner == 1 %}duel-winner{% endif %}">
+                {{ duel.player1_name }}
+              </span>
+            </td>
+
+            <!-- 결과 -->
+            <td style="text-align:center">
+              {% if duel.winner == 1 %}
+                <span class="duel-result duel-result--p1">P1 승</span>
+              {% elif duel.winner == 2 %}
+                <span class="duel-result duel-result--p2">P2 승</span>
+              {% else %}
+                <span class="duel-result">무승부</span>
+              {% endif %}
+            </td>
+
+            <!-- P2 -->
+            <td>
+              <span class="{% if duel.winner == 2 %}duel-winner{% endif %}">
+                {{ duel.player2_name }}
+              </span>
+            </td>
+
+            <!-- 선택 캐릭터 (픽 슬롯) -->
+            <td>
+              <div style="display:flex;gap:.3rem;flex-wrap:wrap;align-items:center">
+                {% for slot in duel.idol_slots.all %}
+                  {% if slot.slot_type == 'pick' %}
+                  <span class="idol-slot-chip {% if slot.player == 1 %}chip--p1{% else %}chip--p2{% endif %}">
+                    {% if slot.idol.icon_img_url %}
+                      <img src="{{ slot.idol.icon_img_url }}" alt="{{ slot.idol.name }}" style="width:16px;height:16px;border-radius:3px;vertical-align:middle">
+                    {% endif %}
+                    {{ slot.idol.name }}
+                  </span>
+                  {% endif %}
+                {% endfor %}
+              </div>
+            </td>
+
+            <!-- 시즌 -->
+            <td>
+              {% if duel.season %}<span class="tag">{{ duel.season }}</span>
+              {% else %}<span style="color:var(--text-secondary)">—</span>{% endif %}
+            </td>
+
+            <!-- 날짜 -->
+            <td style="white-space:nowrap;color:var(--text-secondary)">
+              {{ duel.played_at|date:"Y-m-d" }}
+            </td>
+
+            <!-- 출처 -->
+            <td>
+              <span class="badge {% if duel.source == 'tts' %}badge--lav{% else %}badge--warn{% endif %}">
+                {{ duel.get_source_display }}
+              </span>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="8" style="text-align:center;padding:2.5rem;color:var(--text-secondary)">
+              대전 기록이 없습니다
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 페이지네이션 -->
+  {% if page_obj.paginator.num_pages > 1 %}
+  <div class="pagination">
+    {% if page_obj.has_previous %}
+      <a href="?q={{ query }}&idol={{ selected_idol }}&page={{ page_obj.previous_page_number }}">‹</a>
+    {% else %}
+      <span class="disabled">‹</span>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+      {% if num == page_obj.number %}
+        <span class="current">{{ num }}</span>
+      {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+        <a href="?q={{ query }}&idol={{ selected_idol }}&page={{ num }}">{{ num }}</a>
+      {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+      <a href="?q={{ query }}&idol={{ selected_idol }}&page={{ page_obj.next_page_number }}">›</a>
+    {% else %}
+      <span class="disabled">›</span>
+    {% endif %}
+  </div>
+  {% endif %}
+
+</div>
+
+<style>
+/* 대전 행 */
+.duel-row:hover td { background: var(--bg-card-hover); }
+
+/* 승자 이름 강조 */
+.duel-winner { font-weight: 700; color: var(--ial-lavender-dk); }
+
+/* 결과 배지 */
+.duel-result {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: .73rem;
+  font-weight: 700;
+  background: rgba(155,165,212,.12);
+  color: var(--text-secondary);
+}
+.duel-result--p1 { background: rgba(232,118,136,.15); color: var(--ial-red-bar); }
+.duel-result--p2 { background: rgba(126,158,214,.15); color: var(--ial-blue-bar); }
+
+/* 캐릭터 슬롯 칩 */
+.idol-slot-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: .72rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.chip--p1 { background: rgba(232,118,136,.12); color: var(--ial-red-bar); }
+.chip--p2 { background: rgba(126,158,214,.12); color: var(--ial-blue-bar); }
+</style>
+{% endblock %}

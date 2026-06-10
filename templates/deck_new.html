@@ -1,0 +1,200 @@
+{% extends "base.html" %}{% load static %}
+{% block title %}덱 만들기 | IdolAlive Statistics{% endblock %}
+
+{% block content %}
+<div class="pg">
+
+  <div class="pg-head">
+    <div>
+      <p class="pg-head__title">덱 만들기</p>
+      <p class="pg-head__sub">캐릭터를 정확히 3명 선택하세요</p>
+    </div>
+    <a href="{% url 'viewersPage:deck_list' %}" class="btn btn--ghost">← 목록으로</a>
+  </div>
+
+  <!-- 선택 현황 바 -->
+  <div class="sel-bar card" style="margin-bottom:1.2rem;">
+    <div class="sel-bar__inner">
+      <div class="sel-slots">
+        <div class="sel-slot" id="slot0"><span class="sel-slot__q">?</span></div>
+        <div class="sel-slot" id="slot1"><span class="sel-slot__q">?</span></div>
+        <div class="sel-slot" id="slot2"><span class="sel-slot__q">?</span></div>
+      </div>
+      <span class="sel-bar__count" id="selCount">0 / 3 선택</span>
+      <button class="btn btn--lav" id="goEditBtn" disabled onclick="goEdit()">
+        카드 편집으로 →
+      </button>
+    </div>
+  </div>
+
+  <!-- 캐릭터 그리드 (9명) -->
+  <div class="idol-pick-grid">
+    {% for idol in idols %}
+    <div class="idol-pick-item"
+      data-id="{{ idol.idol_id }}"
+      data-name="{{ idol.name }}"
+      data-icon="{{ idol.icon_img_url }}"
+      onclick="pickIdol(this)">
+
+      <div class="idol-pick-item__img">
+        {% if idol.banner_img_url %}
+          <img src="{{ idol.banner_img_url }}" alt="{{ idol.name }}">
+        {% else %}
+          <div class="idol-pick-item__placeholder">{{ idol.name|slice:":1" }}</div>
+        {% endif %}
+        <div class="idol-pick-item__check">✓</div>
+      </div>
+      <p class="idol-pick-item__name">{{ idol.name }}</p>
+      <p class="idol-pick-item__gimmick">{{ idol.leader_gimmick|truncatechars:24 }}</p>
+
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- 제출용 숨김 폼 -->
+  <form id="newDeckForm" method="get" action="{% url 'viewersPage:deck_edit_new' %}">
+    <input type="hidden" name="idols" id="hiddenIdols">
+  </form>
+
+</div>
+
+<style>
+/* 선택 현황 바 */
+.sel-bar__inner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.8rem 1.2rem;
+  flex-wrap: wrap;
+}
+.sel-slots { display: flex; gap: 0.55rem; flex: 1; min-width: 0; }
+.sel-slot {
+  width: 52px; height: 52px;
+  border-radius: var(--radius-sm);
+  border: 2px dashed var(--border-card);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: border-color 0.2s;
+}
+.sel-slot.filled  { border-style: solid; border-color: var(--ial-lavender); }
+.sel-slot__q      { font-size: 1.3rem; color: var(--border-card); line-height: 1; }
+.sel-slot img     { width: 100%; height: 100%; object-fit: cover; }
+.sel-bar__count   { font-size: 0.85rem; color: var(--text-secondary); white-space: nowrap; }
+
+/* 캐릭터 그리드 — 3열 고정, 9명 */
+.idol-pick-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.9rem;
+}
+@media(min-width:600px)  { .idol-pick-grid { grid-template-columns: repeat(4, 1fr); } }
+@media(min-width:860px)  { .idol-pick-grid { grid-template-columns: repeat(5, 1fr); } }
+@media(min-width:1060px) { .idol-pick-grid { grid-template-columns: repeat(9, 1fr); } }
+
+.idol-pick-item {
+  background: var(--bg-card);
+  border: 2px solid var(--border-card);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.16s, box-shadow 0.16s, border-color 0.16s;
+}
+.idol-pick-item:hover    { transform: translateY(-3px); box-shadow: var(--shadow-hover); }
+.idol-pick-item.selected { border-color: var(--ial-lavender); box-shadow: 0 0 0 1px var(--ial-lavender); }
+.idol-pick-item.dimmed   { opacity: 0.38; pointer-events: none; }
+
+.idol-pick-item__img {
+  position: relative;
+  aspect-ratio: 3/4;
+  background: linear-gradient(145deg, #eeeaf6, #e4e0f0);
+  overflow: hidden;
+}
+.idol-pick-item__img img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform 0.28s;
+}
+.idol-pick-item:hover .idol-pick-item__img img { transform: scale(1.04); }
+.idol-pick-item__placeholder {
+  width: 100%; height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+/* 체크 오버레이 */
+.idol-pick-item__check {
+  position: absolute; inset: 0;
+  background: rgba(155,165,212,0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: white;
+  font-weight: 700;
+  opacity: 0;
+  transition: opacity 0.16s;
+}
+.idol-pick-item.selected .idol-pick-item__check { opacity: 1; }
+
+.idol-pick-item__name    { font-weight: 700; font-size: 0.82rem; padding: 0.45rem 0.6rem 0.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.idol-pick-item__gimmick { font-size: 0.68rem; color: var(--text-secondary); padding: 0 0.6rem 0.5rem; line-height: 1.4; }
+</style>
+
+<script>
+const MAX = 3;
+let picked = []; // [{id, name, icon}]
+
+function pickIdol(el) {
+  const id   = el.dataset.id;
+  const name = el.dataset.name;
+  const icon = el.dataset.icon;
+  const idx  = picked.findIndex(p => p.id === id);
+
+  if (idx !== -1) {
+    picked.splice(idx, 1);
+    el.classList.remove('selected');
+  } else {
+    if (picked.length >= MAX) return;
+    picked.push({ id, name, icon });
+    el.classList.add('selected');
+  }
+  refreshUI();
+}
+
+function refreshUI() {
+  // 슬롯
+  for (let i = 0; i < MAX; i++) {
+    const slot = document.getElementById('slot' + i);
+    if (picked[i]) {
+      slot.classList.add('filled');
+      slot.innerHTML = picked[i].icon
+        ? `<img src="${picked[i].icon}" alt="${picked[i].name}">`
+        : `<span style="font-size:.62rem;padding:2px;text-align:center">${picked[i].name}</span>`;
+    } else {
+      slot.classList.remove('filled');
+      slot.innerHTML = '<span class="sel-slot__q">?</span>';
+    }
+  }
+  // 카운트 & 버튼
+  document.getElementById('selCount').textContent = `${picked.length} / ${MAX} 선택`;
+  document.getElementById('goEditBtn').disabled = picked.length !== MAX;
+  // 미선택 희미하게
+  document.querySelectorAll('.idol-pick-item').forEach(el => {
+    const isSelected = picked.some(p => p.id === el.dataset.id);
+    el.classList.toggle('dimmed', !isSelected && picked.length >= MAX);
+  });
+}
+
+function goEdit() {
+  document.getElementById('hiddenIdols').value = picked.map(p => p.id).join(',');
+  document.getElementById('newDeckForm').submit();
+}
+</script>
+{% endblock %}

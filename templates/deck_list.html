@@ -1,0 +1,169 @@
+{% extends "base.html" %}{% load static %}
+{% block title %}덱 일람 | IdolAlive Statistics{% endblock %}
+
+{% block content %}
+<div class="pg">
+
+  <div class="pg-head">
+    <div>
+      <p class="pg-head__title">덱 일람</p>
+      <p class="pg-head__sub">커뮤니티 공개 덱 · {{ page_obj.paginator.count }}개</p>
+    </div>
+    <!-- 정렬 -->
+    <div class="filter-bar" style="margin:0">
+      <span class="filter-bar__label">정렬</span>
+      <a href="?sort=like&page=1"
+        class="filter-chip{% if sort == 'like' %} active{% endif %}">추천순</a>
+      <a href="?sort=new&page=1"
+        class="filter-chip{% if sort == 'new' %} active{% endif %}">최신순</a>
+      <a href="?sort=comment&page=1"
+        class="filter-chip{% if sort == 'comment' %} active{% endif %}">댓글순</a>
+    </div>
+  </div>
+
+  <!-- ── 덱 목록 테이블 (아크라이트 스타일) ── -->
+  <div class="card">
+    <div class="dl-list">
+
+      {% for deck in page_obj %}
+      <a class="dl-row" href="{% url 'viewersPage:deck_detail' deck.id %}">
+
+        <!-- 아이돌 3캐릭 섬네일 -->
+        <div class="dl-row__idols">
+          {% if deck.idol and deck.idol.banner_img_url %}
+            <img class="dl-row__idol-img" src="{{ deck.idol.banner_img_url }}" alt="{{ deck.idol.name }}">
+          {% else %}
+            <div class="dl-row__idol-img dl-row__idol-ph">?</div>
+          {% endif %}
+        </div>
+
+        <!-- 덱 이름 + 작성자 -->
+        <div class="dl-row__info">
+          <p class="dl-row__name">{{ deck.name }}</p>
+          <p class="dl-row__owner">
+            {{ deck.owner.username }}
+            {% if deck.description %}
+              <span class="dl-row__desc-preview">— {{ deck.description|truncatechars:40 }}</span>
+            {% endif %}
+          </p>
+        </div>
+
+        <!-- 카운터들 -->
+        <div class="dl-row__counters">
+          <span class="dl-counter dl-counter--like">❤ {{ deck.like_count }}</span>
+          <span class="dl-counter dl-counter--comment">💬 {{ deck.comments.count }}</span>
+        </div>
+
+        <!-- 날짜 + 작성자 -->
+        <div class="dl-row__meta">
+          <span class="dl-row__username">{{ deck.owner.username }}</span>
+          <span class="dl-row__date">· {{ deck.created_at|timesince }}전</span>
+        </div>
+
+      </a>
+      {% empty %}
+      <div class="empty-state">
+        <div class="empty-state__icon">📭</div>
+        <p class="empty-state__text">공개된 덱이 없습니다</p>
+      </div>
+      {% endfor %}
+
+    </div>
+  </div>
+
+  <!-- 페이지네이션 -->
+  {% if page_obj.paginator.num_pages > 1 %}
+  <div class="pagination">
+    {% if page_obj.has_previous %}
+      <a href="?sort={{ sort }}&page={{ page_obj.previous_page_number }}">‹</a>
+    {% else %}
+      <span class="disabled">‹</span>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+      {% if num == page_obj.number %}
+        <span class="current">{{ num }}</span>
+      {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+        <a href="?sort={{ sort }}&page={{ num }}">{{ num }}</a>
+      {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+      <a href="?sort={{ sort }}&page={{ page_obj.next_page_number }}">›</a>
+    {% else %}
+      <span class="disabled">›</span>
+    {% endif %}
+  </div>
+  {% endif %}
+
+</div>
+
+<style>
+/* 덱 목록 컨테이너 */
+.dl-list { display: flex; flex-direction: column; }
+
+/* 한 행 — 아크라이트 덱 목록 스타일 */
+.dl-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: .75rem 1.1rem;
+  border-bottom: 1px solid var(--border-light);
+  transition: background .14s;
+  text-decoration: none;
+  color: inherit;
+}
+.dl-row:last-child { border-bottom: none; }
+.dl-row:hover { background: var(--bg-card-hover); }
+
+/* 아이돌 섬네일 */
+.dl-row__idols { flex-shrink: 0; }
+.dl-row__idol-img {
+  width: 56px; height: 56px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  border: 1.5px solid var(--border-card);
+  background: #e8e5f0;
+}
+.dl-row__idol-ph {
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem; color: var(--border-card);
+}
+
+/* 덱 이름 & 설명 */
+.dl-row__info { flex: 1; min-width: 0; }
+.dl-row__name {
+  font-weight: 700;
+  font-size: .93rem;
+  color: var(--ial-lavender-dk);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dl-row__owner { font-size: .78rem; color: var(--text-secondary); margin-top: 2px; }
+.dl-row__desc-preview { color: var(--text-secondary); font-weight: 400; }
+
+/* 카운터 */
+.dl-row__counters {
+  display: flex;
+  gap: .7rem;
+  flex-shrink: 0;
+}
+.dl-counter { font-size: .82rem; font-weight: 600; white-space: nowrap; }
+.dl-counter--like    { color: #e05555; }
+.dl-counter--comment { color: #4caf7d; }
+
+/* 날짜 */
+.dl-row__meta {
+  text-align: right;
+  flex-shrink: 0;
+  min-width: 120px;
+}
+.dl-row__username { font-size: .78rem; color: var(--ial-lavender-dk); font-weight: 600; }
+.dl-row__date     { font-size: .75rem; color: var(--text-secondary); }
+
+@media(max-width:640px) {
+  .dl-row__meta, .dl-row__counters { display: none; }
+}
+</style>
+{% endblock %}

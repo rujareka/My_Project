@@ -1,0 +1,154 @@
+{% extends "base.html" %}{% load static %}
+{% block title %}내 덱 | IdolAlive Statistics{% endblock %}
+
+{% block content %}
+<div class="pg">
+
+  <!-- 헤더 -->
+  <div class="pg-head">
+    <div>
+      <p class="pg-head__title">내 덱</p>
+      <p class="pg-head__sub">{{ user.username }}님의 덱 목록 · {{ decks|length }}개</p>
+    </div>
+    <a href="{% url 'viewersPage:deck_new' %}" class="btn btn--lav">＋ 덱 만들기</a>
+  </div>
+
+  {% if decks %}
+  <div class="my-deck-grid">
+    {% for deck in decks %}
+    <div class="my-deck-card anim-fade-up" style="animation-delay:{{ forloop.counter0|add:'0' }}0ms">
+
+      <!-- 아이돌 배너 영역 -->
+      <div class="my-deck-card__banner">
+        {% if deck.idol and deck.idol.banner_img_url %}
+          <img src="{{ deck.idol.banner_img_url }}" alt="{{ deck.idol.name }}">
+        {% else %}
+          <div class="my-deck-card__banner-placeholder">?</div>
+        {% endif %}
+        <!-- 완성 배지 -->
+        {% if deck.is_complete %}
+          <span class="badge badge--ok my-deck-card__badge">완성</span>
+        {% else %}
+          <span class="badge badge--warn my-deck-card__badge">미완성</span>
+        {% endif %}
+        <!-- 공개 배지 -->
+        {% if deck.is_public %}
+          <span class="badge badge--lav my-deck-card__badge2">공개</span>
+        {% endif %}
+      </div>
+
+      <!-- 덱 정보 -->
+      <div class="my-deck-card__body">
+        <p class="my-deck-card__name">{{ deck.name }}</p>
+        <p class="my-deck-card__meta">
+          {{ deck.idol.name|default:"아이돌 미선택" }}
+          &nbsp;·&nbsp; 메인 <b>{{ deck.cards.count }}</b>/18
+          &nbsp;·&nbsp; 메모리 <b>{{ deck.memory_cards.count }}</b>/3
+        </p>
+        {% if deck.description %}
+        <p class="my-deck-card__desc">{{ deck.description|truncatechars:55 }}</p>
+        {% endif %}
+      </div>
+
+      <!-- 액션 버튼 행 -->
+      <div class="my-deck-card__actions">
+        <span class="my-deck-card__date">{{ deck.updated_at|date:"Y-m-d" }}</span>
+        <div class="my-deck-card__btns">
+          <!-- 공개/비공개 토글 -->
+          <form method="post" action="{% url 'viewersPage:deck_toggle_public' deck.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn--ghost btn--sm">
+              {% if deck.is_public %}🔓{% else %}🔒{% endif %}
+            </button>
+          </form>
+          <a href="{% url 'viewersPage:deck_edit' deck.id %}" class="btn btn--ghost btn--sm">편집</a>
+          <form method="post" action="{% url 'viewersPage:deck_delete' deck.id %}"
+            onsubmit="return confirm('\'{{ deck.name }}\' 을 삭제하시겠습니까?')">
+            {% csrf_token %}
+            <button type="submit" class="btn btn--danger btn--sm">삭제</button>
+          </form>
+        </div>
+      </div>
+
+    </div>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-state__icon">🃏</div>
+    <p class="empty-state__text">아직 만든 덱이 없습니다</p>
+    <a href="{% url 'viewersPage:deck_new' %}" class="btn btn--lav">첫 덱 만들기</a>
+  </div>
+  {% endif %}
+
+</div>
+
+<style>
+/* 내 덱 그리드 */
+.my-deck-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.my-deck-card {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-card);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: box-shadow 0.2s, transform 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+.my-deck-card:hover {
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-3px);
+}
+
+/* 배너 */
+.my-deck-card__banner {
+  position: relative;
+  height: 110px;
+  background: linear-gradient(135deg, #eceaf6, #ddd9f0);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.my-deck-card__banner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 20%;
+}
+.my-deck-card__banner-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  color: var(--border-card);
+}
+.my-deck-card__badge  { position: absolute; top: 7px; right: 7px; }
+.my-deck-card__badge2 { position: absolute; top: 7px; left: 7px; }
+
+/* 바디 */
+.my-deck-card__body { padding: 0.75rem 0.95rem 0.4rem; flex: 1; }
+.my-deck-card__name { font-weight: 700; font-size: 0.95rem; margin-bottom: 3px; color: var(--text-primary); }
+.my-deck-card__meta { font-size: 0.78rem; color: var(--text-secondary); }
+.my-deck-card__desc { font-size: 0.78rem; color: var(--text-secondary); margin-top: 5px; line-height: 1.5; }
+
+/* 액션 */
+.my-deck-card__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.55rem 0.95rem;
+  border-top: 1px solid var(--border-light);
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+.my-deck-card__date { font-size: 0.73rem; color: var(--text-secondary); }
+.my-deck-card__btns { display: flex; gap: 0.35rem; align-items: center; }
+</style>
+{% endblock %}

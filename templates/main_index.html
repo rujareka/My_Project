@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}IdolAlive Statistics — 메인{% endblock %}
+{% block nav_stats %}active{% endblock %}
+
+{% block hero %}
+<!-- ── 히어로 배너 ── -->
+<div class="hero">
+  <img class="hero__img"
+    src="{% static 'imgs/Title/main_banner.jpg' %}"
+    alt="IDOL A LIVE 키비주얼"
+  >
+  <div class="hero__overlay"></div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="main-grid">
+
+  <!-- ── 좌측: 차트 + 조합 통계 ── -->
+  <div style="display:flex; flex-direction:column; gap:1.5rem;">
+
+    <!-- 상위권 캐릭터 바 차트 -->
+    <div class="card anim-fade-up">
+      <div class="card__header">
+        <span class="card__title">상위권 캐릭터</span>
+        <div class="chart-legend">
+          <div class="chart-legend__item">
+            <div class="chart-legend__dot" style="background:var(--ial-red-bar);"></div>승률
+          </div>
+          <div class="chart-legend__item">
+            <div class="chart-legend__dot" style="background:var(--ial-blue-bar);"></div>픽률
+          </div>
+        </div>
+      </div>
+      <div class="card__body">
+        <div class="bar-chart-wrap">
+          <canvas id="topChart"></canvas>
+        </div>
+        <div class="idol-icon-row">
+          {% for idol in top_idols %}
+          <a href="{% url 'viewersPage:idol_detail' idol.idol_id %}">
+            <img
+              class="idol-icon {% if forloop.first %}gold-border{% endif %}"
+              src="{{ idol.banner_img_url }}"
+              alt="{{ idol.name }}"
+              title="{{ idol.name }}"
+            >
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- 조합 통계 -->
+    <div class="card anim-fade-up anim-delay-2">
+      <div class="card__header">
+        <span class="card__title">조합 통계</span>
+        <span style="font-size:0.8rem; color:var(--text-secondary);">스크롤 가능</span>
+      </div>
+      <div class="combo-scroll-body">
+        <table class="combo-table">
+          <thead>
+            <tr>
+              <th>#</th><th>캐릭터 조합</th><th>픽률</th><th>승률</th><th>게임 수</th>
+            </tr>
+          </thead>
+          <tbody>
+            {# TODO: 조합 통계 데이터 — views.py에서 context로 전달 #}
+            {% for combo in top_combos %}
+            <tr>
+              <td style="color:var(--text-secondary); font-weight:600;">{{ forloop.counter }}</td>
+              <td>
+                {% for idol in combo.idols %}
+                  <img class="idol-mini" src="{{ idol.banner_img_url }}" alt="{{ idol.name }}" title="{{ idol.name }}">
+                {% endfor %}
+                {% for idol in combo.idols %}{{ idol.name }}{% if not forloop.last %} + {% endif %}{% endfor %}
+              </td>
+              <td class="stat-pick">{{ combo.pick_rate }}%</td>
+              <td class="stat-win">{{ combo.win_rate }}%</td>
+              <td style="color:var(--text-secondary);">{{ combo.game_count }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" style="text-align:center; color:var(--text-secondary); padding:1.5rem;">데이터 없음</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /좌측 -->
+
+  <!-- ── 우측: 1위 카드 + 요약 ── -->
+  <div style="display:flex; flex-direction:column; gap:1.5rem;">
+
+    {% if top_idols %}
+    {% with rank1=top_idols.0 %}
+    <div class="card rank1-card anim-fade-up anim-delay-1">
+      <div class="card__header">
+        <span class="card__title">👑 1위</span>
+        <span class="tag">이번 시즌</span>
+      </div>
+      <div class="rank1-img-wrap">
+        <img class="rank1-img" src="{{ rank1.banner_img_url }}" alt="{{ rank1.name }}">
+        <div class="rank1-badge"><br>1 위</div>
+      </div>
+      <div class="card__body">
+        <p style="font-size:0.88rem; color:var(--text-secondary); line-height:1.7;">
+          {{ rank1.name }}<br>
+          <span style="font-size:0.82rem;">
+            승률 <b class="stat-win">{{ rank1.win_rate }}%</b>
+            &nbsp; 픽률 <b class="stat-pick">{{ rank1.pick_rate }}%</b>
+          </span>
+        </p>
+      </div>
+    </div>
+    {% endwith %}
+    {% endif %}
+
+    <!-- 시즌 요약 -->
+    <div class="card anim-fade-up anim-delay-3">
+      <div class="card__header">
+        <span class="card__title">시즌 요약</span>
+      </div>
+      <div class="card__body" style="display:grid; grid-template-columns:1fr 1fr; gap:0.9rem;">
+        <div style="text-align:center; padding:0.7rem; background:#f8f7fc; border-radius:var(--radius-md);">
+          <p style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:3px;">총 대전 수</p>
+          <p style="font-family:var(--font-display); font-size:1.8rem; color:var(--text-primary); letter-spacing:0.05em;">{{ stats.total_duels }}</p>
+        </div>
+        <div style="text-align:center; padding:0.7rem; background:#f8f7fc; border-radius:var(--radius-md);">
+          <p style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:3px;">참여 캐릭터</p>
+          <p style="font-family:var(--font-display); font-size:1.8rem; color:var(--text-primary); letter-spacing:0.05em;">{{ stats.total_idols }}</p>
+        </div>
+        <div style="text-align:center; padding:0.7rem; background:#f8f7fc; border-radius:var(--radius-md);">
+          <p style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:3px;">총 카드 수</p>
+          <p style="font-family:var(--font-display); font-size:1.8rem; color:var(--text-primary); letter-spacing:0.05em;">{{ stats.total_cards }}</p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /우측 -->
+
+</div><!-- /main-grid -->
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/* ── 상위권 바 차트 ── */
+(function () {
+  // Django 컨텍스트에서 JSON으로 받아오는 방식
+  // views.py에서 json.dumps로 직렬화 후 전달
+  const labels    = {{ chart_labels|safe }};
+  const winRates  = {{ chart_win_rates|safe }};
+  const pickRates = {{ chart_pick_rates|safe }};
+
+  const ctx = document.getElementById('topChart');
+  if (!ctx || !labels.length) return;
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label:'승률 (%)',  data: winRates,  backgroundColor:'rgba(232,118,136,0.82)', borderRadius:5, borderSkipped:false },
+        { label:'픽률 (%)',  data: pickRates, backgroundColor:'rgba(126,158,214,0.82)', borderRadius:5, borderSkipped:false }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: c => ` ${c.dataset.label}: ${c.raw}%` } }
+      },
+      scales: {
+        x: { grid:{ display:false }, ticks:{ font:{ family:'Noto Sans KR', size:12 } } },
+        y: {
+          beginAtZero:true, max:100,
+          grid:{ color:'rgba(155,165,212,0.15)' },
+          ticks:{ callback: v => v+'%', font:{ size:11 } }
+        }
+      }
+    }
+  });
+})();
+</script>
+{% endblock %}

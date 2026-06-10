@@ -1,0 +1,19 @@
+# Created by venv; see https://docs.python.org/3/library/venv.html
+
+Plaintext
+# 비밀 데이터베이스 파일 제외
+*.sqlite3
+secrets.json
+.env
+
+# 파이썬 가상환경 폴더 제외 (질문자님의 가상환경 이름)
+IAA_Project/
+venv/
+.venv/
+
+# 파이썬 실행 캐시 파일 제외
+__pycache__/
+*.pyc
+
+# 미디어 및 스태틱 업로드 파일 제외
+media/

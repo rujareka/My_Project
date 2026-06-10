@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+
+{% load static %}
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}IdolAlive Statistics{% endblock %}</title>
+  {% load static %}
+
+  <!-- Google Fonts: Bebas Neue (디스플레이) + Noto Sans KR (본문) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Chart.js CDN (통계 차트용) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <style>
+    /* =============================================
+       IDOL ALIVE STATISTICS — 전역 CSS
+       컬러 시스템: 공식사이트 연보라 + 핑크 팔레트
+       ============================================= */
+
+    /* ── 1. CSS 변수 ── */
+    :root {
+      /* 메인 팔레트 (스크린샷 기반) */
+      --ial-lavender:    #9ba5d4;   /* 네비/푸터 배경 */
+      --ial-lavender-lt: #b8c0e0;   /* 네비 hover */
+      --ial-lavender-dk: #7a83b8;   /* 네비 border */
+      --ial-pink:        #e8457a;   /* 1위 왕관 강조 */
+      --ial-pink-lt:     #f0799b;
+      --ial-blue-bar:    #7e9ed6;   /* 픽률 바 */
+      --ial-red-bar:     #e87688;   /* 승률 바 */
+      --ial-gold:        #d4a520;   /* 1위 테두리 */
+      --ial-gold-lt:     #f0c840;
+
+      /* 배경 */
+      --bg-page:         #f5f4f8;
+      --bg-card:         #ffffff;
+      --bg-card-hover:   #fafafe;
+
+      /* 텍스트 */
+      --text-primary:    #2a2738;
+      --text-secondary:  #6b6880;
+      --text-on-nav:     #ffffff;
+
+      /* 테두리 */
+      --border-light:    rgba(155, 165, 212, 0.35);
+      --border-card:     rgba(155, 165, 212, 0.5);
+
+      /* 그림자 */
+      --shadow-card:     0 2px 12px rgba(120, 130, 180, 0.12);
+      --shadow-hover:    0 6px 24px rgba(120, 130, 180, 0.22);
+
+      /* 반지름 */
+      --radius-sm:  6px;
+      --radius-md:  10px;
+      --radius-lg:  16px;
+      --radius-xl:  22px;
+
+      /* 폰트 */
+      --font-display: 'Bebas Neue', cursive;
+      --font-body:    'Noto Sans KR', 'Noto Sans JP', sans-serif;
+
+      /* 레이아웃 */
+      --nav-h:       64px;
+      --container-w: 1160px;
+    }
+
+    /* ── 2. 리셋 & 베이스 ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-body);
+      background: var(--bg-page);
+      color: var(--text-primary);
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+    ul { list-style: none; }
+    button { cursor: pointer; font-family: inherit; }
+
+    /* ── 3. 네비게이션 ── */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: var(--nav-h);
+      background: var(--ial-lavender);
+      border-bottom: 2px solid var(--ial-lavender-dk);
+      box-shadow: 0 2px 12px rgba(100,110,160,0.18);
+    }
+    .navbar__inner {
+      max-width: var(--container-w);
+      margin: 0 auto;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      padding: 0 1.5rem;
+      gap: 2rem;
+    }
+
+    /* 로고 */
+    .navbar__logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    .navbar__logo-img {
+      height: 36px;
+      width: auto;
+      filter: drop-shadow(0 1px 4px rgba(0,0,0,0.25));
+    }
+    .navbar__logo-text {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      color: var(--text-on-nav);
+      letter-spacing: 0.08em;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+
+    /* 메뉴 */
+    .navbar__menu {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      flex: 1;
+      justify-content: center;
+    }
+    .navbar__menu a {
+      padding: 0.45rem 1.1rem;
+      border-radius: var(--radius-sm);
+      color: var(--text-on-nav);
+      font-weight: 500;
+      font-size: 0.95rem;
+      letter-spacing: 0.03em;
+      transition: background 0.18s, color 0.18s;
+      white-space: nowrap;
+    }
+    .navbar__menu a:hover,
+    .navbar__menu a.active {
+      background: rgba(255,255,255,0.22);
+    }
+
+    /* 로그인 영역 */
+    .navbar__auth {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-shrink: 0;
+    }
+    .btn-nav-auth {
+      padding: 0.38rem 1.1rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-on-nav);
+      border: 1.5px solid rgba(255,255,255,0.55);
+      background: transparent;
+      transition: background 0.18s;
+    }
+    .btn-nav-auth:hover { background: rgba(255,255,255,0.18); }
+    .btn-nav-auth.primary {
+      background: var(--ial-pink);
+      border-color: var(--ial-pink);
+    }
+    .btn-nav-auth.primary:hover { background: var(--ial-pink-lt); border-color: var(--ial-pink-lt); }
+
+    /* 햄버거 (모바일) */
+    .navbar__hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      padding: 4px;
+      margin-left: auto;
+    }
+    .navbar__hamburger span {
+      display: block;
+      width: 24px; height: 2px;
+      background: white;
+      border-radius: 2px;
+      transition: transform 0.22s;
+    }
+
+    /* ── 4. 메인 히어로 배너 ── */
+    .hero {
+      width: 100%;
+      background: var(--bg-card);
+      position: relative;
+      overflow: hidden;
+      border-bottom: 3px solid var(--ial-lavender);
+    }
+    .hero__img {
+      width: 100%;
+      max-height: 440px;
+      object-fit: cover;
+      object-position: center top;
+      display: block;
+    }
+    .hero__overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(155,165,212,0.05) 0%,
+        rgba(155,165,212,0.0) 60%,
+        rgba(245,244,248,0.7) 100%
+      );
+      pointer-events: none;
+    }
+
+    /* ── 5. 컨테이너 & 레이아웃 ── */
+    .container {
+      max-width: var(--container-w);
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+    main { flex: 1; }
+
+    /* 메인 본문 2컬럼 그리드 */
+    .main-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 1.5rem;
+      padding: 1.5rem 0 2rem;
+    }
+
+    /* ── 6. 카드 공통 ── */
+    .card {
+      background: var(--bg-card);
+      border: 1.5px solid var(--border-card);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+    }
+    .card__header {
+      padding: 0.9rem 1.2rem 0.6rem;
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .card__title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: 0.02em;
+    }
+    .card__body {
+      padding: 1rem 1.2rem;
+    }
+
+    /* ── 7. 상위권 캐릭터 차트 섹션 ── */
+    .top-chart-section {
+      /* 왼쪽 카드 */
+    }
+
+    /* 범례 */
+    .chart-legend {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+    .chart-legend__item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+    }
+    .chart-legend__dot {
+      width: 12px; height: 12px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    /* 바 차트 컨테이너 */
+    .bar-chart-wrap {
+      position: relative;
+      height: 220px;
+      margin: 0.5rem 0 0.8rem;
+    }
+
+    /* 아이돌 아이콘 행 */
+    .idol-icon-row {
+      display: flex;
+      gap: 0.6rem;
+      align-items: center;
+      padding: 0.4rem 0;
+    }
+    .idol-icon {
+      width: 72px; height: 72px;
+      border-radius: var(--radius-md);
+      object-fit: cover;
+      border: 2px solid var(--border-card);
+      transition: transform 0.18s, box-shadow 0.18s;
+      cursor: pointer;
+    }
+    .idol-icon:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-hover);
+    }
+    .idol-icon.gold-border { border-color: var(--ial-gold); box-shadow: 0 0 0 1px var(--ial-gold-lt); }
+
+    /* ── 8. 1위 소개 카드 (우측 상단) ── */
+    .rank1-card {
+      border: 2px solid var(--ial-gold);
+      box-shadow: 0 4px 20px rgba(212,165,32,0.18);
+    }
+    .rank1-card .card__header {
+      background: linear-gradient(135deg, #fff8e8, #fff3d0);
+      border-bottom-color: rgba(212,165,32,0.3);
+    }
+    .rank1-card .card__title { color: var(--ial-gold); }
+
+    .rank1-img-wrap {
+      position: relative;
+      background: linear-gradient(145deg, #ffeef4, #fff0f8);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      overflow: hidden;
+      min-height: 220px;
+    }
+    .rank1-img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      object-position: center top;
+    }
+    .rank1-badge {
+      position: absolute;
+      bottom: 0.7rem;
+      right: 0.7rem;
+      background: rgba(255,255,255,0.9);
+      border: 2px solid var(--ial-gold);
+      border-radius: var(--radius-md);
+      padding: 0.2rem 0.6rem;
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      color: var(--ial-gold);
+      letter-spacing: 0.06em;
+      line-height: 1.3;
+      text-align: center;
+    }
+
+    /* ── 9. 조합 통계 섹션 ── */
+    .combo-section {
+      /* 하단 전체폭 */
+    }
+    .combo-scroll-body {
+      max-height: 200px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--ial-lavender) transparent;
+    }
+    .combo-scroll-body::-webkit-scrollbar { width: 5px; }
+    .combo-scroll-body::-webkit-scrollbar-thumb {
+      background: var(--ial-lavender);
+      border-radius: 10px;
+    }
+
+    /* 조합 테이블 */
+    .combo-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+    .combo-table th {
+      position: sticky;
+      top: 0;
+      background: #f0eef8;
+      color: var(--text-secondary);
+      font-weight: 600;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--border-light);
+      text-align: left;
+    }
+    .combo-table td {
+      padding: 0.5rem 0.75rem;
+      border-bottom: 0.5px solid var(--border-light);
+      vertical-align: middle;
+      color: var(--text-primary);
+    }
+    .combo-table tr:hover td { background: var(--bg-card-hover); }
+
+    /* 수치 색상 */
+    .stat-win  { color: var(--ial-red-bar);  font-weight: 600; }
+    .stat-pick { color: var(--ial-blue-bar); font-weight: 600; }
+
+    /* ── 10. 알림 메시지 ── */
+    .messages {
+      max-width: var(--container-w);
+      margin: 0.8rem auto 0;
+      padding: 0 1.5rem;
+    }
+    .alert {
+      padding: 0.7rem 1rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+      border-left: 3px solid;
+    }
+    .alert-success { background: #edf8f0; border-color: #4caf7d; color: #1e6640; }
+    .alert-error   { background: #fdedf0; border-color: #e8457a; color: #8a1a3a; }
+    .alert-info    { background: #edf0fb; border-color: var(--ial-lavender); color: #3a4480; }
+    .alert-warning { background: #fdf8e8; border-color: var(--ial-gold); color: #7a5a10; }
+
+    /* ── 11. 푸터 ── */
+    .footer {
+      background: var(--ial-lavender);
+      border-top: 2px solid var(--ial-lavender-dk);
+      color: var(--text-on-nav);
+      margin-top: auto;
+    }
+    .footer__inner {
+      max-width: var(--container-w);
+      margin: 0 auto;
+      padding: 1.6rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .footer__logo {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      letter-spacing: 0.08em;
+      opacity: 0.9;
+    }
+    .footer__links {
+      display: flex;
+      gap: 1.2rem;
+    }
+    .footer__links a {
+      font-size: 0.85rem;
+      opacity: 0.75;
+      transition: opacity 0.16s;
+    }
+    .footer__links a:hover { opacity: 1; }
+    .footer__copy {
+      font-size: 0.8rem;
+      opacity: 0.6;
+      width: 100%;
+      text-align: center;
+      padding-top: 0.6rem;
+      border-top: 1px solid rgba(255,255,255,0.2);
+    }
+
+    /* ── 12. 공통 유틸 ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 0.45rem 1.1rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      font-weight: 500;
+      border: none;
+      transition: background 0.18s, transform 0.14s;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: var(--ial-pink); color: white; }
+    .btn-primary:hover { background: var(--ial-pink-lt); }
+    .btn-secondary { background: var(--ial-lavender); color: white; }
+    .btn-secondary:hover { background: var(--ial-lavender-lt); }
+    .btn-ghost {
+      background: transparent;
+      border: 1.5px solid var(--border-card);
+      color: var(--text-secondary);
+    }
+    .btn-ghost:hover { background: var(--bg-card-hover); color: var(--text-primary); }
+
+    .tag {
+      display: inline-block;
+      padding: 0.18rem 0.55rem;
+      border-radius: 20px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      background: rgba(155,165,212,0.15);
+      color: var(--ial-lavender-dk);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 1rem;
+    }
+    .section-header h2 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .section-header .section-tag {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      font-weight: 400;
+    }
+
+    /* 구분선 */
+    .divider {
+      height: 1px;
+      background: var(--border-light);
+      margin: 1rem 0;
+    }
+
+    /* ── 13. 반응형 ── */
+    @media (max-width: 900px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    @media (max-width: 640px) {
+      :root { --nav-h: 56px; }
+      .navbar__menu,
+      .navbar__auth { display: none; }
+      .navbar__hamburger { display: flex; }
+      .navbar__inner { padding: 0 1rem; }
+      .hero__img { max-height: 240px; }
+      .container { padding: 0 0.9rem; }
+      .main-grid { gap: 1rem; padding: 1rem 0 1.5rem; }
+    }
+
+    /* ── 14. 애니메이션 ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .anim-fade-up { animation: fadeUp 0.45s ease both; }
+    .anim-delay-1 { animation-delay: 0.08s; }
+    .anim-delay-2 { animation-delay: 0.16s; }
+    .anim-delay-3 { animation-delay: 0.24s; }
+
+    /* ── 15. 페이지별 확장 블록 (자식 템플릿에서 오버라이드) ── */
+    {% block extra_css %}{% endblock %}
+  </style>
+</head>
+
+<body>
+
+  <!-- ================================
+       네비게이션
+       ================================ -->
+  <nav class="navbar">
+    <div class="navbar__inner">
+
+      <!-- 로고 -->
+      <a href="{% url 'viewersPage:main' %}" class="navbar__logo">
+        <img
+          class="navbar__logo-img"
+          src="{% static 'imgs/Title/Logo.png' %}"
+          alt="IDOL A LIVE"
+        >
+        <span class="navbar__logo-text">IAADB</span>
+      </a>
+
+      <!-- 메인 메뉴 -->
+      <ul class="navbar__menu">
+        <li>
+          <a href="{% url 'viewersPage:my_decks' %}"
+             class="{% block nav_my_deck %}{% endblock %}">내 덱</a>
+        </li>
+        <li>
+          <a href="{% url 'viewersPage:card_list' %}"
+             class="{% block nav_card %}{% endblock %}">카드 일람</a>
+        </li>
+        <li>
+          <a href="{% url 'viewersPage:deck_list' %}"
+             class="{% block nav_deck_list %}{% endblock %}">덱 일람</a>
+        </li>
+        <li>
+          <a href="{% url 'viewersPage:statistics' %}"
+             class="{% block nav_stats %}{% endblock %}">통계</a>
+        </li>
+        <li>
+          <a href="{% url 'viewersPage:duel_list' %}"
+             class="{% block nav_duel %}{% endblock %}">대전 기록</a>
+        </li>
+      </ul>
+
+      <!-- 인증 버튼 -->
+      <div class="navbar__auth">
+        {% if user.is_authenticated %}
+          <span style="color: white; font-size:0.88rem; opacity:0.85;">{{ user.username }}</span>
+          <a href="{% url 'viewersPage:logout_view' %}" class="btn-nav-auth">로그아웃</a>
+        {% else %}
+          <a href="{% url 'viewersPage:login' %}"    class="btn-nav-auth">로그인</a>
+          <a href="{% url 'viewersPage:signup' %}" class="btn-nav-auth primary">회원가입</a>
+        {% endif %}
+      </div>
+
+      <!-- 햄버거 (모바일) -->
+      <button class="navbar__hamburger" id="navHamburger" aria-label="메뉴 열기">
+        <span></span><span></span><span></span>
+      </button>
+
+    </div>
+
+    <!-- 모바일 드롭다운 메뉴 -->
+    <div id="mobileMenu" style="
+      display:none;
+      background: var(--ial-lavender-dk);
+      padding: 0.8rem 1rem;
+      border-top: 1px solid rgba(255,255,255,0.15);
+    ">
+      <a href="{% url 'viewersPage:my_decks' %}"  style="display:block; color:white; padding:0.5rem 0; border-bottom:1px solid rgba(255,255,255,0.12);">내 덱</a>
+      <a href="{% url 'viewersPage:card_list' %}"  style="display:block; color:white; padding:0.5rem 0; border-bottom:1px solid rgba(255,255,255,0.12);">카드 일람</a>
+      <a href="{% url 'viewersPage:idol_tier' %}"  style="display:block; color:white; padding:0.5rem 0; border-bottom:1px solid rgba(255,255,255,0.12);">통계</a>
+      <a href="{% url 'viewersPage:duel_list' %}"  style="display:block; color:white; padding:0.5rem 0; border-bottom:1px solid rgba(255,255,255,0.12);">대전 기록</a>
+      {% if user.is_authenticated %}
+        <a href="{% url 'viewersPage:logout_view' %}" style="display:block; color:white; padding:0.5rem 0; opacity:0.8;">로그아웃</a>
+      {% else %}
+        <a href="{% url 'viewersPage:login' %}"              style="display:block; color:white; padding:0.5rem 0;">로그인</a>
+        <a href="{% url 'viewersPage:signup' %}" style="display:block; color:var(--ial-gold); padding:0.5rem 0;">회원가입</a>
+      {% endif %}
+    </div>
+  </nav>
+
+  <!-- ================================
+       알림 메시지
+       ================================ -->
+  {% if messages %}
+  <div class="messages">
+    {% for msg in messages %}
+    <div class="alert alert-{{ msg.tags }}">{{ msg }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- ================================
+       메인 콘텐츠 (자식 템플릿에서 채움)
+       ================================ -->
+  <main>
+    {% block hero %}{% endblock %}
+
+    <div class="container">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+
+  <!-- ================================
+       푸터
+       ================================ -->
+  <footer class="footer">
+    <div class="footer__inner">
+      <div class="footer__logo">IDOLALIVE STATISTICS</div>
+      <nav class="footer__links">
+        <a href="{% url 'viewersPage:idol_tier' %}">통계</a>
+        <a href="{% url 'viewersPage:card_list' %}">카드 일람</a>
+        <a href="{% url 'viewersPage:duel_list' %}">대전 기록</a>
+        <a href="https://www.idolalive.com/" target="_blank" rel="noopener">공식 사이트 ↗</a>
+      </nav>
+      <p class="footer__copy">
+        © 2025 IdolAlive Statistics &nbsp;|&nbsp;
+        IDOL A LIVE is © SUSABI GAMES. This is a fan-made statistics site.
+      </p>
+    </div>
+  </footer>
+
+  <!-- ================================
+       공통 JS
+       ================================ -->
+  <script>
+    /* ─── 햄버거 메뉴 토글 ─── */
+    const hamburger = document.getElementById('navHamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    if (hamburger && mobileMenu) {
+      hamburger.addEventListener('click', () => {
+        const open = mobileMenu.style.display === 'block';
+        mobileMenu.style.display = open ? 'none' : 'block';
+        hamburger.setAttribute('aria-expanded', !open);
+      });
+    }
+
+    /* ─── 현재 페이지 nav 활성화 ─── */
+    (function () {
+      const path = window.location.pathname;
+      document.querySelectorAll('.navbar__menu a').forEach(a => {
+        if (a.getAttribute('href') === path) a.classList.add('active');
+      });
+    })();
+
+    /* ─── 알림 자동 사라짐 (3s) ─── */
+    document.querySelectorAll('.alert').forEach(el => {
+      setTimeout(() => {
+        el.style.transition = 'opacity 0.5s';
+        el.style.opacity = '0';
+        setTimeout(() => el.remove(), 500);
+      }, 3000);
+    });
+  </script>
+
+  {% block extra_js %}{% endblock %}
+
+</body>
+</html>
