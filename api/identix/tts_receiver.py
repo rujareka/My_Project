@@ -35,9 +35,9 @@ def process_duel_data(data: dict) -> DuelRecord:
         "winner": 1,
         "season": "S1",
         "p1_idol_picks": ["idol_01"],
-        "p1_idol_bans":  ["idol_02"],
+
         "p2_idol_picks": ["idol_03"],
-        "p2_idol_bans":  ["idol_01"],
+
         "p1_leader": "idol_01",
         "p2_leader": "idol_03",
         "p1_deck_code": "card_01,card_02,...",
@@ -70,8 +70,8 @@ def process_duel_data(data: dict) -> DuelRecord:
 def _create_idol_slots(duel: DuelRecord, data: dict):
     """픽/밴 슬롯을 DuelIdolSlot에 기록"""
     for player_num, pick_key, ban_key, leader_key in [
-        (1, 'p1_idol_picks', 'p1_idol_bans', 'p1_leader'),
-        (2, 'p2_idol_picks', 'p2_idol_bans', 'p2_leader'),
+        (1, 'p1_idol_picks', 'p1_leader'),
+        (2, 'p2_idol_picks', 'p2_leader'),
     ]:
         for idol_id in data.get(pick_key, []):
             idol = Idol.objects.filter(idol_id=idol_id).first()

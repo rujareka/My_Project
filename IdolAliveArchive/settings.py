@@ -123,3 +123,6 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
+
+ALLOWED_HOSTS = ['유저명.pythonanywhere.com']
+DEBUG = False
