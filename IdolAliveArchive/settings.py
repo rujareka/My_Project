@@ -124,5 +124,6 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
 
-ALLOWED_HOSTS = ['유저명.pythonanywhere.com']
+ALLOWED_HOSTS = ['1116jhlee.pythonanywhere.com']
 DEBUG = False
+STATIC_ROOT = '/home/1116jhlee/My_Project/static'
