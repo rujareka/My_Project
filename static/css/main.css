@@ -51,6 +51,27 @@ tr:hover { background: rgba(255,255,255,0.03); }
 .btn-danger { background: #c0392b; }
 .btn:hover { opacity: 0.85; }
 
+.chart-idol-icons {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr); /* 아이돌 수에 맞게 */
+  padding-left: 45px;   /* 차트 Y축 레이블 너비만큼 밀기 */
+  margin-top: 6px;
+  gap: 0;
+}
+
+.chart-idol-icon-item {
+  display: flex;
+  justify-content: center;
+}
+
+.chart-idol-icon-item img {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 2px solid #e0dff5;
+}
+
 /* 알림 */
 .alert { padding: 0.8rem 1rem; margin-bottom: 1rem; border-radius: var(--border-radius); background: rgba(233,30,140,0.15); border-left: 3px solid var(--color-primary); }
 

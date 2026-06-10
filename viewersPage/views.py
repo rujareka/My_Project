@@ -45,12 +45,14 @@ from api.identix.duel_logic import (
 def main_page(request):
     top_idols    = get_idol_tier_list()[:10]
     recent_duels = get_recent_duels(5)
+    chart_idols = top_idols[:5]  # ← 5명으로 통일
 
     # ★ 픽률 상위 5명만 차트에 표시
     chart_idols = sorted(top_idols, key=lambda i: i.pick_rate, reverse=True)[:5]
 
     context = {
         'top_idols':         top_idols,
+        'chart_idols': chart_idols,
         'recent_duels':      recent_duels,
         'top_combos':        [],
         'chart_labels':      json.dumps([i.name       for i in chart_idols]),
@@ -456,14 +458,14 @@ def logout_view(request):
 def idol_tier(request):
     """/idol - 전체 아이돌 승률/픽률/밴율 티어표"""
     idols = get_idol_tier_list()
-    return render(request, 'god/tier.html', {'idols': idols})
+    return render(request, 'statistics.html', {'idols': idols})
 
 
 def idol_detail(request, idol_id):
     """/idol/<idol_id> - 아이돌 상세 + 보유 카드"""
     idol = get_object_or_404(Idol, idol_id=idol_id)
     cards = get_card_stats_by_idol(idol_id)
-    return render(request, 'god/detail.html', {'idol': idol, 'cards': cards})
+    return render(request, 'statistics.html', {'idol': idol, 'cards': cards})
 
 # ── 대전 기록 ──────────────────────────────
 def duel_list(request):
