@@ -1,0 +1,788 @@
+[
+  {
+    "model": "api.idol",
+    "pk": 1,
+    "fields": {
+      "idol_id": "1",
+      "name": "아이자와 히요리",
+      "leader_gimmick": "모두와 함께!\r\n\r\n당신의 3인곡 노래 카드의 팬 획득 장수를 +1 한다.",
+      "description": "",
+      "start_vol": 30,
+      "start_hand": 5,
+      "pick_count": 0,
+      "win_count": 0,
+      "banner_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Characters/Idol_01.jpg",
+      "icon_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Ranking/Idol_Profile_01_3.PNG"
+    }
+  },
+  {
+    "model": "api.idol",
+    "pk": 2,
+    "fields": {
+      "idol_id": "2",
+      "name": "시노다 사키",
+      "leader_gimmick": "하이 텐션\r\n당신이 성원 칩을 얻게 된다면, 그 대신 당신의 볼티지를 +10% 해도 된다.",
+      "description": "",
+      "start_vol": 40,
+      "start_hand": 5,
+      "pick_count": 0,
+      "win_count": 0,
+      "banner_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Characters/Idol_02.jpg",
+      "icon_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Ranking/Idol_Profile_02_3.PNG"
+    }
+  },
+  {
+    "model": "api.idol",
+    "pk": 3,
+    "fields": {
+      "idol_id": "3",
+      "name": "히메노 에리",
+      "leader_gimmick": "하트에 록 온\r\n당신은 성원 칩 1개와 다음 성원 효과를 갖는다. (성원 소비 1) 관객석에 있는 카드 1장을 선택하고, 그 카드 위에 독점 칩을 놓아 독점 상태로 만든다",
+      "description": "",
+      "start_vol": 30,
+      "start_hand": 5,
+      "pick_count": 0,
+      "win_count": 0,
+      "banner_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Characters/Idol_03.jpg",
+      "icon_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Ranking/Idol_Profile_03_3.PNG"
+    }
+  },
+  {
+    "model": "api.idol",
+    "pk": 4,
+    "fields": {
+      "idol_id": "4",
+      "name": "루리카와 오토하",
+      "leader_gimmick": "칸타빌레\r\n당신의 메인 페이즈를 시작할 때, 당신은 관객 덱 가장 위에 있는 카드를 보고, 그 카드를 관객 덱의 가장 위나 아래에 놓을 수 있다.",
+      "description": "",
+      "start_vol": 30,
+      "start_hand": 6,
+      "pick_count": 0,
+      "win_count": 0,
+      "banner_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Characters/Idol_04.jpg",
+      "icon_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Ranking/Idol_Profile_04_3.PNG"
+    }
+  },
+  {
+    "model": "api.idol",
+    "pk": 5,
+    "fields": {
+      "idol_id": "5",
+      "name": "히이라기 료코",
+      "leader_gimmick": "어레인지먼트\r\n당신의 메인 페이즈를 시작할 때, 당신의 메모리가 10장 이상이라면, 관객석에서 카드 1장을 골라 획득 할 수 있다.",
+      "description": "",
+      "start_vol": 30,
+      "start_hand": 5,
+      "pick_count": 0,
+      "win_count": 0,
+      "banner_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Characters/Idol_05.jpg",
+      "icon_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Ranking/Idol_Profile_05_3.PNG"
+    }
+  },
+  {
+    "model": "api.idol",
+    "pk": 6,
+    "fields": {
+      "idol_id": "6",
+      "name": "코즈키 후미노",
+      "leader_gimmick": "마법에 걸려\r\n당신이 성원 효과를 사용했다면. 이번턴, 당신이 다음번에 사용하는 노래 카드의 팬 획득 장수를 +1 한다.(이 효과는 중첩되지 않는다.)",
+      "description": "",
+      "start_vol": 30,
+      "start_hand": 4,
+      "pick_count": 0,
+      "win_count": 0,
+      "banner_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Characters/Idol_06.jpg",
+      "icon_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Ranking/Idol_Profile_06_3.PNG"
+    }
+  },
+  {
+    "model": "api.idol",
+    "pk": 7,
+    "fields": {
+      "idol_id": "7",
+      "name": "시노미아 쥬리",
+      "leader_gimmick": "리프레인\r\n당신의 메인 페이즈 도중 1번만 수행할 수 있다. 손에서 카드 1장을 버린 카드 더미에 놓는다. 그렇게 한 경우, 버린 카드 더미에서 1장을 골라, 비용을 지불하고 사용할 수 있다. 사용한 카드는 메모리에 놓는 대신, 노래 덱의 가장 아래에 놓는다.",
+      "description": "",
+      "start_vol": 40,
+      "start_hand": 5,
+      "pick_count": 0,
+      "win_count": 0,
+      "banner_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Characters/Idol_07.jpg",
+      "icon_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Ranking/Idol_Profile_07_3.PNG"
+    }
+  },
+  {
+    "model": "api.idol",
+    "pk": 8,
+    "fields": {
+      "idol_id": "8",
+      "name": "타카나시 츠카사",
+      "leader_gimmick": "리차지\r\n당신이 이벤트 카드를 사용했을 때, 당신의 아이돌 1명을 백스테이지로 되돌릴 수 있다. (이 효과를 이벤트 카드보다 우선하여 해결한다) 이 효과는 1턴에 1번만 사용할 수 있다.",
+      "description": "",
+      "start_vol": 30,
+      "start_hand": 4,
+      "pick_count": 0,
+      "win_count": 0,
+      "banner_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Characters/Idol_08.jpg",
+      "icon_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Ranking/Idol_Profile_08_3.PNG"
+    }
+  },
+  {
+    "model": "api.idol",
+    "pk": 9,
+    "fields": {
+      "idol_id": "9",
+      "name": "아마우 카논",
+      "leader_gimmick": "카논 빔~!\r\n당신의 메인 페이즈를 시작할 때, 당신은 성원 칩을 1개 획득한다.",
+      "description": "",
+      "start_vol": 20,
+      "start_hand": 4,
+      "pick_count": 0,
+      "win_count": 0,
+      "banner_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Characters/Idol_09.jpg",
+      "icon_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Ranking/Idol_Profile_09_3.PNG"
+    }
+  },
+  {
+    "model": "api.card",
+    "pk": 1,
+    "fields": {
+      "card_id": "1_1",
+      "name": "Magic Time!",
+      "idol": 1,
+      "effect": "추가 코스트로 당신의 볼티지를 -10% 할 수 있다. 그렇게 했다면, 이 카드의 팬 획득 장수를 +1한다.",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Caracter_Cards/Idol_01_Card_1.jpg",
+      "include_count": 0,
+      "win_count": 0,
+      "card_level": 1,
+      "voltage": 10,
+      "fan_addition": 1
+    }
+  },
+  {
+    "model": "api.card",
+    "pk": 2,
+    "fields": {
+      "card_id": "1_2",
+      "name": "GO 스트레이트!!",
+      "idol": 1,
+      "effect": "추가 코스트로 당신의 볼티지를 -10% 할 수 있다. 그렇게 했다면, 이 카드의 팬 획득 장수를 +1 한다.",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Caracter_Cards/Idol_01_Card_2.jpg",
+      "include_count": 0,
+      "win_count": 0,
+      "card_level": 2,
+      "voltage": 20,
+      "fan_addition": 2
+    }
+  },
+  {
+    "model": "api.card",
+    "pk": 3,
+    "fields": {
+      "card_id": "1_3",
+      "name": "ROCKET DASH!!!",
+      "idol": 1,
+      "effect": "효과 없음",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Caracter_Cards/Idol_01_Card_3.jpg",
+      "include_count": 0,
+      "win_count": 0,
+      "card_level": 3,
+      "voltage": 30,
+      "fan_addition": 4
+    }
+  },
+  {
+    "model": "api.card",
+    "pk": 4,
+    "fields": {
+      "card_id": "2_1",
+      "name": "emotions!",
+      "idol": 2,
+      "effect": "효과 없음",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Caracter_Cards/Idol_02_Card_1.jpg",
+      "include_count": 0,
+      "win_count": 0,
+      "card_level": 1,
+      "voltage": 20,
+      "fan_addition": 1
+    }
+  },
+  {
+    "model": "api.card",
+    "pk": 5,
+    "fields": {
+      "card_id": "2_2",
+      "name": "토라져 잠든 다음날",
+      "idol": 2,
+      "effect": "효과 없음",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Caracter_Cards/Idol_02_Card_2.jpg",
+      "include_count": 0,
+      "win_count": 0,
+      "card_level": 2,
+      "voltage": 30,
+      "fan_addition": 2
+    }
+  },
+  {
+    "model": "api.card",
+    "pk": 6,
+    "fields": {
+      "card_id": "2_3",
+      "name": "들뜨고 싶지 않Night?",
+      "idol": 2,
+      "effect": "당신의 볼티지를 +10% 한다.",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Caracter_Cards/Idol_02_Card_3.jpg",
+      "include_count": 0,
+      "win_count": 0,
+      "card_level": 3,
+      "voltage": 40,
+      "fan_addition": 3
+    }
+  },
+  {
+    "model": "api.card",
+    "pk": 7,
+    "fields": {
+      "card_id": "3_1",
+      "name": "짜증러브",
+      "idol": 3,
+      "effect": "추가 코스트로 성원 칩을 1개 지불할 수 있다. 그렇게 했다면, 관객석의 선두에서부터 카드를 획득하는 대신, 관객석에서 카드 1장을 골라 획득한다.",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Caracter_Cards/Idol_03_Card_1.jpg",
+      "include_count": 0,
+      "win_count": 0,
+      "card_level": 1,
+      "voltage": 10,
+      "fan_addition": 1
+    }
+  },
+  {
+    "model": "api.card",
+    "pk": 8,
+    "fields": {
+      "card_id": "3_2",
+      "name": "순정 포이즌",
+      "idol": 3,
+      "effect": "관객석의 선두에서부터 카드를 획득하는 대신, 관객석에서 카드 1장을 골라 획득할 수 있다.",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Caracter_Cards/Idol_03_Card_2.jpg",
+      "include_count": 0,
+      "win_count": 0,
+      "card_level": 2,
+      "voltage": 20,
+      "fan_addition": 2
+    }
+  },
+  {
+    "model": "api.card",
+    "pk": 9,
+    "fields": {
+      "card_id": "3_3",
+      "name": "내가 스타라이트",
+      "idol": 3,
+      "effect": "관객석의 선두에서부터 카드를 획득하는 대신, 관객 덱의 위에서 카드 2장을 공개하고, 공개한 카드들과 관객석에서 합계 2장의 카드를 선택하여 획득할 수 있다. 관객 덱에서 공개한 카드들 중, 획득하지 않은 카드는 원하는 순서로 관객 덱 위에 되돌려 놓는다.",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Caracter_Cards/Idol_03_Card_3.jpg",
+      "include_count": 0,
+      "win_count": 0,
+      "card_level": 3,
+      "voltage": 30,
+      "fan_addition": 3
+    }
+  },
+  {
+    "model": "api.card",
+    "pk": 10,
+    "fields": {
+      "card_id": "4_1",
+      "name": "자줒빛 음색~SHION~",
+      "idol": 4,
+      "effect": "(VOL효과) 노래 카드를 1장 뽑는다.",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Caracter_Cards/Idol_04_Card_1.jpg",
+      "include_count": 0,
+      "win_count": 0,
+      "card_level": 1,
+      "voltage": 10,
+      "fan_addition": 1
+    }
+  },
+  {
+    "model": "api.card",
+    "pk": 11,
+    "fields": {
+      "card_id": "4_2",
+      "name": "Part of You",
+      "idol": 4,
+      "effect": "(VOL효과) 노래 카드를 1장 뽑는다.",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Caracter_Cards/Idol_04_Card_2.jpg",
+      "include_count": 0,
+      "win_count": 0,
+      "card_level": 2,
+      "voltage": 20,
+      "fan_addition": 2
+    }
+  },
+  {
+    "model": "api.card",
+    "pk": 12,
+    "fields": {
+      "card_id": "4_3",
+      "name": "DETERMINATION",
+      "idol": 4,
+      "effect": "(VOL효과) 루리카와 오토하가 이 노래를 불렀다면, 노래 카드를 1장 뽑는다. 그 후, 핸드에서 카드 1장을 골라 메모리에 놓을 수 있다.\r\n(FAN효과) 히이라기 료코가 이 노래를 불렀다면, 상대는 획득한 팬 카드를 무작위로 1장 선택해, 관객 덱 가장 아래에 놓는다.",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Caracter_Cards/Idol_0405_Card_3.jpg",
+      "include_count": 0,
+      "win_count": 0,
+      "card_level": 3,
+      "voltage": 30,
+      "fan_addition": 3
+    }
+  },
+  {
+    "model": "api.card",
+    "pk": 13,
+    "fields": {
+      "card_id": "5_1",
+      "name": "Deal with",
+      "idol": 5,
+      "effect": "(FAN효과) 상대는 획득한 팬 카드를 1장 선택해, 관객 덱 가장 아래에 놓는다.",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Caracter_Cards/Idol_05_Card_1.jpg",
+      "include_count": 0,
+      "win_count": 0,
+      "card_level": 1,
+      "voltage": 10,
+      "fan_addition": 1
+    }
+  },
+  {
+    "model": "api.card",
+    "pk": 14,
+    "fields": {
+      "card_id": "5_2",
+      "name": "Apart from You",
+      "idol": 5,
+      "effect": "(FAN효과)상대는 획득한 팬 카드를 1장 선택해, 관객 덱 가장 아래에 놓는다.",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Caracter_Cards/Idol_05_Card_2.jpg",
+      "include_count": 0,
+      "win_count": 0,
+      "card_level": 2,
+      "voltage": 20,
+      "fan_addition": 2
+    }
+  },
+  {
+    "model": "api.card",
+    "pk": 15,
+    "fields": {
+      "card_id": "5_3",
+      "name": "DETERMINATION",
+      "idol": 5,
+      "effect": "(VOL효과) 루리카와 오토하가 이 노래를 불렀다면, 노래 카드를 1장 뽑는다. 그 후, 핸드에서 카드 1장을 골라 메모리에 놓을 수 있다.\r\n(FAN효과)히이라기 료코가 이 노래를 불렀다면, 상대는 획득한 팬 카드를 무작위로 1장 선택해, 관객 덱 가장 아래에 놓는다.",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Caracter_Cards/Idol_0405_Card_3.jpg",
+      "include_count": 0,
+      "win_count": 0,
+      "card_level": 3,
+      "voltage": 30,
+      "fan_addition": 3
+    }
+  },
+  {
+    "model": "api.card",
+    "pk": 16,
+    "fields": {
+      "card_id": "6_1",
+      "name": "점선 말풍선",
+      "idol": 6,
+      "effect": "(VOL효과) 성원 칩을 1개 획득한다.",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Caracter_Cards/Idol_06_Card_1.jpg",
+      "include_count": 0,
+      "win_count": 0,
+      "card_level": 1,
+      "voltage": 10,
+      "fan_addition": 1
+    }
+  },
+  {
+    "model": "api.card",
+    "pk": 17,
+    "fields": {
+      "card_id": "6_2",
+      "name": "사랑해주지 않는 왕자님",
+      "idol": 6,
+      "effect": "(VOL효과) 성원 칩을 1개 획득한다.",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Caracter_Cards/Idol_06_Card_2.jpg",
+      "include_count": 0,
+      "win_count": 0,
+      "card_level": 2,
+      "voltage": 20,
+      "fan_addition": 2
+    }
+  },
+  {
+    "model": "api.card",
+    "pk": 18,
+    "fields": {
+      "card_id": "6_3",
+      "name": "BRAND NEW MY STORY",
+      "idol": 6,
+      "effect": "(VOL효과) 성원 칩을 1개 획득한다.\r\n(FAN효과) 성원 칩을 1개 획득한다.",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Caracter_Cards/Idol_06_Card_3.jpg",
+      "include_count": 0,
+      "win_count": 0,
+      "card_level": 3,
+      "voltage": 30,
+      "fan_addition": 3
+    }
+  },
+  {
+    "model": "api.card",
+    "pk": 19,
+    "fields": {
+      "card_id": "7_1",
+      "name": "그려가던 꿈",
+      "idol": 7,
+      "effect": "(FAN효과) 메탈팬 1장을 관객 덱 가장 위에 놓을 수 있다.",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Caracter_Cards/Idol_07_Card_1.jpg",
+      "include_count": 0,
+      "win_count": 0,
+      "card_level": 1,
+      "voltage": 10,
+      "fan_addition": 1
+    }
+  },
+  {
+    "model": "api.card",
+    "pk": 20,
+    "fields": {
+      "card_id": "7_2",
+      "name": "금단 자기암시",
+      "idol": 7,
+      "effect": "(FAN효과) 메탈팬 1장을 관객 덱 가장 위에 놓을 수 있다.",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Caracter_Cards/Idol_07_Card_2.jpg",
+      "include_count": 0,
+      "win_count": 0,
+      "card_level": 2,
+      "voltage": 20,
+      "fan_addition": 2
+    }
+  },
+  {
+    "model": "api.card",
+    "pk": 21,
+    "fields": {
+      "card_id": "7_3",
+      "name": "RE: RAISE IN FLAMES",
+      "idol": 7,
+      "effect": "(VOL효과) 메탈팬 1장을 관객 덱 가장 위에 놓을 수 있다.\r\n(FAN효과) 당신의 팬 에어리어에 메탈팬이 2장 이상 있다면, 이 카드의 팬 획득 장수를 +1 한다.",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Caracter_Cards/Idol_07_Card_3.jpg",
+      "include_count": 0,
+      "win_count": 0,
+      "card_level": 3,
+      "voltage": 30,
+      "fan_addition": 3
+    }
+  },
+  {
+    "model": "api.card",
+    "pk": 22,
+    "fields": {
+      "card_id": "8_1",
+      "name": "나는 나를 오해하고 있어",
+      "idol": 8,
+      "effect": "(VOL효과) 에너지 드링크를 1개 획득한다.",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Caracter_Cards/Idol_08_Card_1.jpg",
+      "include_count": 0,
+      "win_count": 0,
+      "card_level": 1,
+      "voltage": 10,
+      "fan_addition": 1
+    }
+  },
+  {
+    "model": "api.card",
+    "pk": 23,
+    "fields": {
+      "card_id": "8_2",
+      "name": "Break Your World",
+      "idol": 8,
+      "effect": "(VOL효과) 에너지 드링크를 1개 획득한다.",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Caracter_Cards/Idol_08_Card_2.jpg",
+      "include_count": 0,
+      "win_count": 0,
+      "card_level": 2,
+      "voltage": 20,
+      "fan_addition": 2
+    }
+  },
+  {
+    "model": "api.card",
+    "pk": 24,
+    "fields": {
+      "card_id": "8_3",
+      "name": "QUEST DIVER",
+      "idol": 8,
+      "effect": "(VOL효과) 에너지 드링크를 1개 획득한다.\r\n(FAN효과) 에너지 드링크를 1개 획득한다.",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Caracter_Cards/Idol_08_Card_3.jpg",
+      "include_count": 0,
+      "win_count": 0,
+      "card_level": 3,
+      "voltage": 30,
+      "fan_addition": 3
+    }
+  },
+  {
+    "model": "api.card",
+    "pk": 25,
+    "fields": {
+      "card_id": "9_1",
+      "name": "귀여움♡의 대가를 요구합니닷!",
+      "idol": 9,
+      "effect": "(FAN효과) 당신의 팬 에어리어에 카드가 3장 이상 있다면, 관객석에 있는 카드를 최대 1장까지 선택한다. 선택한 카드는 턴 종료시까지 효과를 잃는다.",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Caracter_Cards/Idol_09_Card_1.jpg",
+      "include_count": 0,
+      "win_count": 0,
+      "card_level": 1,
+      "voltage": 10,
+      "fan_addition": 1
+    }
+  },
+  {
+    "model": "api.card",
+    "pk": 26,
+    "fields": {
+      "card_id": "9_2",
+      "name": "Travel Music ..zzz",
+      "idol": 9,
+      "effect": "(FAN효과) 당신의 팬 에어리어에 카드가 3장 이상 있다면, 관객석에 있는 카드를 최대 1장까지 선택한다. 선택한 카드는 턴 종료시까지 효과를 잃는다.",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Caracter_Cards/Idol_09_Card_2.jpg",
+      "include_count": 0,
+      "win_count": 0,
+      "card_level": 2,
+      "voltage": 20,
+      "fan_addition": 2
+    }
+  },
+  {
+    "model": "api.card",
+    "pk": 27,
+    "fields": {
+      "card_id": "9_3",
+      "name": "카논☆쇼 타임!",
+      "idol": 9,
+      "effect": "(FAN효과) 관객석에 있는 카드를 최대 1장까지 선택한다. 선택한 카드는 턴 종료시까지 효과를 잃는다.",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Caracter_Cards/Idol_09_Card_3.jpg",
+      "include_count": 0,
+      "win_count": 0,
+      "card_level": 3,
+      "voltage": 30,
+      "fan_addition": 3
+    }
+  },
+  {
+    "model": "api.memorycard",
+    "pk": 1,
+    "fields": {
+      "memory_id": "M_01",
+      "name": "무엇과도 맞바꿀 수 없는 순간",
+      "idol": 1,
+      "effect": "이번턴, 당신이 다음번에 사용하는 노래 카드의 팬 획득 장수를 +1 한다.",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Memorys/Memory_01.jpg"
+    }
+  },
+  {
+    "model": "api.memorycard",
+    "pk": 2,
+    "fields": {
+      "memory_id": "M_02",
+      "name": "그 반짝임을 동경해",
+      "idol": 2,
+      "effect": "턴이 끝날 때까지, 이 카드를 X점의 점수로 취급한다. X는 당신의 스테이지의 볼티지가 120% 이하라면 1, 130% 이상 140% 이하라면 2, 150% 이상 170% 이하라면 4, 180% 이상이라면 7이 된다.",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Memorys/Memory_02.jpg"
+    }
+  },
+  {
+    "model": "api.memorycard",
+    "pk": 3,
+    "fields": {
+      "memory_id": "M_03",
+      "name": "그날의 자신에게 가슴을 펴기 위해",
+      "idol": 3,
+      "effect": "관객 덱에서 점수가 3점 이하인 카드 1장을 골라, 관객석에 있는 카드 1장과 교환한다. 그 후, 관객 덱을 섞는다.",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Memorys/Memory_03.jpg"
+    }
+  },
+  {
+    "model": "api.memorycard",
+    "pk": 4,
+    "fields": {
+      "memory_id": "M_04",
+      "name": "모두를 위한 아리아",
+      "idol": 4,
+      "effect": "핸드에서 카드를 원하는 만큼 버린다. 이번 턴, 당신이 다음번에 사용하는 노래 카드의 팬 획득 장수를 +X 한다. X는 버린 카드의 장수와 같다.",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Memorys/Memory_04.jpg"
+    }
+  },
+  {
+    "model": "api.memorycard",
+    "pk": 5,
+    "fields": {
+      "memory_id": "M_05",
+      "name": "마음을 이어",
+      "idol": 5,
+      "effect": "관객석에 있는 카드를 원하는 만큼 선택하고, 선택한 카드를 원하는 순서로 관객 덱 아래에 놓는다. (독점 칩이 놓여 있는 카드는 선택할 수 없다)",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Memorys/Memory_05.jpg"
+    }
+  },
+  {
+    "model": "api.memorycard",
+    "pk": 6,
+    "fields": {
+      "memory_id": "M_06",
+      "name": "나의 신데렐라 스토리",
+      "idol": 6,
+      "effect": "당신의 아이돌을 1명 선택해, 백 스테이지로 되돌린다. (그 아이돌은 한번 더 노래나 팬 서비스를 수행할 수 있다)",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Memorys/Memory_06.jpg"
+    }
+  },
+  {
+    "model": "api.memorycard",
+    "pk": 7,
+    "fields": {
+      "memory_id": "M_07",
+      "name": "셔플!",
+      "idol": null,
+      "effect": "관객석에 있는 카드 중에서, 독점 칩이 놓여 있지 않은 모든 관객 카드를 관객 덱으로 되돌린다. 그 후, 관객 덱을 섞고 다시 나열한다.",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Memorys/Memory_07.jpg"
+    }
+  },
+  {
+    "model": "api.memorycard",
+    "pk": 8,
+    "fields": {
+      "memory_id": "M_08",
+      "name": "센터 스위치",
+      "idol": null,
+      "effect": "당신의 아이돌 카드 배치를 변경하여, 센터 아이돌을 교체한다. (센터 아이돌만 센터 효과를 발휘한다)",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Memorys/Memory_08.jpg"
+    }
+  },
+  {
+    "model": "api.memorycard",
+    "pk": 9,
+    "fields": {
+      "memory_id": "M_09",
+      "name": "무대 트러블",
+      "idol": null,
+      "effect": "추가 코스트로 핸드에서 카드 1장을 골라 버린다. 당신이 획득한 팬 카드 2장과 상대가 획득한 팬 카드 3장을 무작위로 선택한다. 이 방법으로 선택된 카드가 정확히 5장이라면, 그 카드들을 관객 덱에 넣고 섞는다.",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Memorys/Memory_09.jpg"
+    }
+  },
+  {
+    "model": "api.memorycard",
+    "pk": 10,
+    "fields": {
+      "memory_id": "M_10",
+      "name": "임기응변",
+      "idol": null,
+      "effect": "핸드에서 카드를 1장 선택해 메모리에 놓는다. 그 후, 노래 카드를 1장 뽑는다.",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Memorys/Memory_10.jpg"
+    }
+  },
+  {
+    "model": "api.memorycard",
+    "pk": 11,
+    "fields": {
+      "memory_id": "M_11",
+      "name": "강철과 같은 인연",
+      "idol": 7,
+      "effect": "관객석과 상대의 팬 에어리어에서 메탈팬을 합계 2장까지 선택하여 획득한다.",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Memorys/Memory_11.jpg"
+    }
+  },
+  {
+    "model": "api.memorycard",
+    "pk": 12,
+    "fields": {
+      "memory_id": "M_12",
+      "name": "정상을 향해",
+      "idol": 8,
+      "effect": "팬 칩을 2개 획득한다. 그 후, 메모리에서 노래 카드를 원하는 만큼 버릴 수 있다. 이 방법으로 버린 노래 카드 3장마다, 팬 칩을 1개씩 획득한다.",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Memorys/Memory_12.jpg"
+    }
+  },
+  {
+    "model": "api.memorycard",
+    "pk": 13,
+    "fields": {
+      "memory_id": "M_13",
+      "name": "마음이 두근거리는 스테이지",
+      "idol": 9,
+      "effect": "백스테이지에 있는 당신의 아이돌을 원하는 만큼 공연 에어리어로 이동시킵니다. 이 방법으로 이동한 아이돌 1명당, 성원 칩을 2개씩 획득합니다.",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Memorys/Memory_13.jpg"
+    }
+  },
+  {
+    "model": "api.memorycard",
+    "pk": 14,
+    "fields": {
+      "memory_id": "M_14",
+      "name": "헤쳐 나가는 힘",
+      "idol": null,
+      "effect": "이 카드는 당신의 볼티지가 100% 이상인 경우에만 사용할 수 있다. 노래카드를 2장 뽑는다.",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Memorys/Memory_14.jpg"
+    }
+  },
+  {
+    "model": "api.memorycard",
+    "pk": 15,
+    "fields": {
+      "memory_id": "M_15",
+      "name": "라이브 뷰잉",
+      "idol": null,
+      "effect": "당신이 팬 서비스를 했을 때, 성원 칩을 획득하는 대신 팬 칩을 1개 획득할 수 있다. 이 효과는 게임이 끝날 때까지 사용할 수 있다.",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Memorys/Memory_15.jpg"
+    }
+  },
+  {
+    "model": "api.memorycard",
+    "pk": 16,
+    "fields": {
+      "memory_id": "M_16",
+      "name": "MC 타임",
+      "idol": null,
+      "effect": "당신의 다음 턴을 시작할 때까지, 당신의 팬 에어리어에 있는 카드는, 상대의 카드 효과의 영향을 받지 않는다.",
+      "card_img_url": "https://cdn.jsdelivr.net/gh/rujareka/My_Project@main/static/imgs/Idol/Memorys/Memory_16.jpg"
+    }
+  },
+  {
+    "model": "api.playerdeck",
+    "pk": 7,
+    "fields": {
+      "owner": 1,
+      "idol": 5,
+      "idol_ids_json": "5,6,8",
+      "name": "ㅉ;ㄴ",
+      "description": "찐입니다잉",
+      "like_count": 0,
+      "deck_code": "",
+      "memo": "",
+      "created_at": "2026-06-10T19:06:52.956Z",
+      "updated_at": "2026-06-10T19:06:52.956Z",
+      "is_public": true,
+      "card_list_json": "[\"5_1\", \"5_1\", \"5_1\", \"5_2\", \"5_3\", \"5_3\", \"6_1\", \"6_1\", \"6_1\", \"6_2\", \"6_3\", \"8_2\", \"8_2\", \"8_3\", \"8_3\", \"8_1\", \"8_1\", \"8_1\"]",
+      "cards": [
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        22,
+        23,
+        24
+      ],
+      "memory_cards": [
+        6,
+        7,
+        16
+      ]
+    }
+  }
+]
