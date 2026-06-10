@@ -23,6 +23,7 @@ urlpatterns = [
     path('deck/save/',                     views.deck_save,         name='deck_save'),
     path('deck/<int:deck_id>/delete/',     views.deck_delete,       name='deck_delete'),
     path('deck/<int:deck_id>/toggle/',     views.deck_toggle_public,name='deck_toggle_public'),
+    path('deck/<int:deck_id>/detail/', views.deck_detail, name='deck_detail'),
 
     # ── 덱 일람 (공개) ──────────────────────────
     path('decklist/', views.decklist, name='deck_list'),

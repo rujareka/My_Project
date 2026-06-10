@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}{{ deck.name }} | 덱 상세{% endblock %}
+{% block content %}
+
+<div style="max-width:900px;margin:0 auto;">
+  <h2>{{ deck.name }}</h2>
+  <p>작성자: <strong>{{ deck.owner.username }}</strong> · {{ deck.created_at|date:"Y.m.d" }}</p>
+  {% if deck.description %}<p>{{ deck.description }}</p>{% endif %}
+  <p>❤ {{ deck.like_count }}</p>
+
+  {% if is_owner %}
+    <a href="{% url 'viewersPage:deck_edit' deck.id %}">✏ 편집</a>
+  {% endif %}
+
+  <h3>메인 카드 ({{ deck.cards.count }}종)</h3>
+  <div style="display:flex;flex-wrap:wrap;gap:.5rem;">
+    {% for item in cards_with_count %}
+      <div style="text-align:center;width:80px;">
+        {% if item.card.card_img_url %}
+          <img src="{{ item.card.card_img_url }}" style="width:100%;" alt="{{ item.card.name }}">
+        {% endif %}
+        <div>{{ item.card.name }}</div>
+        <div>× {{ item.count }}</div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <h3>메모리 카드</h3>
+  <div style="display:flex;gap:.5rem;">
+    {% for m in deck.memory_cards.all %}
+      <div style="text-align:center;width:80px;">
+        {% if m.card_img_url %}
+          <img src="{{ m.card_img_url }}" style="width:100%;" alt="{{ m.name }}">
+        {% endif %}
+        <div>{{ m.name }}</div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% endblock %}

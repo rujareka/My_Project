@@ -286,12 +286,10 @@ let selMem  = new Set();
 
 /* ── 기존 덱 편집 초기값 ── */
 {% if deck %}
-{% for c in deck.cards.all %}
-  selMain.set("{{ c.card_id }}", (selMain.get("{{ c.card_id }}") || 0) + 1);
-{% endfor %}
-{% for m in deck.memory_cards.all %}
-  selMem.add("{{ m.memory_id }}");
-{% endfor %}
+const _savedCards = {{ deck_card_list_json|safe }};
+_savedCards.forEach(id => {
+  selMain.set(id, (selMain.get(id) || 0) + 1);
+});
 {% endif %}
 
 /* ── 탭 전환 ── */

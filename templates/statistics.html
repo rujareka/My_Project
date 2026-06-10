@@ -157,8 +157,8 @@
 
   </div><!-- /stats-top-grid -->
 
-  <!-- ══════════════════════════════
-       하단: 전체 바 차트
+ <!-- ══════════════════════════
+       하단: 전체 바 차트 (9명)
        ══════════════════════════ -->
   <div class="card" style="margin-top:1.2rem">
     <div class="card__header">
@@ -286,20 +286,20 @@
 .rank1-stat__val { font-family:var(--font-display); font-size:1.4rem; letter-spacing:.04em; color:var(--text-primary); line-height:1; }
 .rank1-gimmick { font-size:.78rem; color:var(--text-secondary); line-height:1.55; border-top:1px solid var(--border-light); padding-top:.6rem; }
 
-/* 차트 범례 */
-.chart-legend { display:flex; gap:1rem; align-items:center; }
+/* 차트 범례 (기존 동일) */
+.chart-legend       { display:flex; gap:1rem; align-items:center; }
 .chart-legend__item { display:flex; align-items:center; gap:5px; font-size:.82rem; color:var(--text-secondary); }
-.chart-legend__dot { width:12px; height:12px; border-radius:3px; flex-shrink:0; }
-.bar-chart-wrap { position:relative; }
+.chart-legend__dot  { width:12px; height:12px; border-radius:3px; flex-shrink:0; }
+.bar-chart-wrap     { position:relative; }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
 /* ── 전체 바 차트 ── */
 (function(){
-  const labels     = {{ chart_labels|safe }};
-  const winRates   = {{ chart_win_rates|safe }};
-  const pickRates  = {{ chart_pick_rates|safe }};
+  const labels    = {{ chart_labels|safe }};
+  const winRates  = {{ chart_win_rates|safe }};
+  const pickRates = {{ chart_pick_rates|safe }};
   const ctx = document.getElementById('allChart');
   if (!ctx || !labels.length) return;
   new Chart(ctx, {
@@ -323,29 +323,26 @@
 })();
 
 /* ── 테이블 정렬 ── */
-let sortDir = -1;
-let sortCol = 'win_rate';
+let sortDir = -1; // -1=내림차순, 1=오름차순
+let sortCol = 'pick_rate';
 
 function sortTable(th) {
   const col = th.dataset.col;
-  sortDir = (sortCol === col) ? sortDir * -1 : -1;
-  sortCol = col;
+  if (sortCol === col) sortDir *= -1;
+  else { sortCol = col; sortDir = -1; }
 
-  document.querySelectorAll('.st-table th').forEach(h => h.classList.remove('sorted'));
+  document.querySelectorAll('.data-table th').forEach(h => h.classList.remove('sorted'));
   th.classList.add('sorted');
-
-  /* camelCase 변환: win_rate → winRate */
-  const toCamel = s => s.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
 
   const tbody = document.getElementById('statsTbody');
   const rows  = [...tbody.querySelectorAll('tr')];
-  rows.sort((a, b) => {
-    const va = parseFloat(a.dataset[toCamel(col)] || 0);
-    const vb = parseFloat(b.dataset[toCamel(col)] || 0);
+  rows.sort((a,b) => {
+    const va = parseFloat(a.dataset[col.replace(/_([a-z])/g, (_,c)=>c.toUpperCase())] || 0);
+    const vb = parseFloat(b.dataset[col.replace(/_([a-z])/g, (_,c)=>c.toUpperCase())] || 0);
     return (vb - va) * sortDir;
   });
-  rows.forEach((r, i) => {
-    r.querySelector('.st-td--rank').textContent = i + 1;
+  rows.forEach((r,i) => {
+    r.querySelector('td').textContent = i+1;
     tbody.appendChild(r);
   });
 }

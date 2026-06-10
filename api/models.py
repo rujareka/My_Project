@@ -137,6 +137,7 @@ class PlayerDeck(models.Model):
     """
     owner    = models.ForeignKey(User, on_delete=models.CASCADE, related_name='decks')
     idol     = models.ForeignKey(Idol, on_delete=models.SET_NULL, null=True)
+    idol_ids_json = models.CharField(max_length=200, blank=True, default='')
     name     = models.CharField(max_length=100)                     # 덱 이름
     cards    = models.ManyToManyField(Card, blank=True)             # 덱에 포함된 카드
     memory_cards = models.ManyToManyField('MemoryCard', blank=True)

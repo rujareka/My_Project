@@ -103,7 +103,7 @@ def deck_edit_new(request):
     신규 덱 카드 편집 화면 — deck=None
     """
     idol_ids_str = request.GET.get('idols', '')
-    idol_ids     = [i.strip() for i in idol_ids_str.split(',') if i.strip()]
+    idol_ids = [i.strip() for i in idol_ids_str.split(',') if i.strip()]
     if len(idol_ids) != 3:
         messages.error(request, '캐릭터를 정확히 3명 선택해주세요.')
         return redirect('viewersPage:deck_new')
@@ -125,21 +125,26 @@ def deck_edit_new(request):
 
 @login_required
 def deck_edit(request, deck_id):
-    """GET /deck/<id>/edit/  — 기존 덱 편집 화면"""
     deck = get_object_or_404(PlayerDeck, id=deck_id, owner=request.user)
-    idol_ids_str   = request.GET.get('idols') or (deck.idol.idol_id if deck.idol else '')
-    selected_idols = list(Idol.objects.filter(idol_id__in=idol_ids_str.split(','))
-                          .prefetch_related('cards'))
+
+    idol_ids_str = (request.GET.get('idols')
+            or deck.idol_ids_json  # ← 핵심 변경
+            or (deck.idol.idol_id if deck.idol else '')
+    )
     idol_ids = [i.strip() for i in idol_ids_str.split(',') if i.strip()]
+    selected_idols = list(
+        Idol.objects.filter(idol_id__in=idol_ids).prefetch_related('cards')
+    )
     memory_cards = MemoryCard.objects.filter(
         Q(idol__idol_id__in=idol_ids) | Q(idol=None)
     ).distinct()
 
     return render(request, 'deck_edit.html', {
         'selected_idols': selected_idols,
-        'memory_cards':   memory_cards,
-        'idol_ids':       idol_ids_str,
-        'deck':           deck,
+        'memory_cards': memory_cards,
+        'idol_ids': idol_ids_str,
+        'deck': deck,
+        'deck_card_list_json': deck.card_list_json or '[]',
     })
 
 
@@ -155,11 +160,12 @@ def deck_save(request):
     deck_id   = request.POST.get('deck_id')
     name      = request.POST.get('name', '').strip()
     idol_ids  = request.POST.get('idol_ids', '')
-    # card_ids: 중복 포함 리스트 ex) ['card_01','card_01','card_02',...]
-    card_ids  = [c for c in request.POST.get('selected_cards', '').split(',') if c]
-    mem_ids   = [m for m in request.POST.get('selected_memories', '').split(',') if m]
     desc      = request.POST.get('description', '')
     is_public = request.POST.get('is_public') == 'on'
+
+    # 카드 목록 (중복 포함 원본)
+    card_ids = [c for c in request.POST.get('selected_cards', '').split(',') if c]
+    mem_ids  = [m for m in request.POST.get('selected_memories', '').split(',') if m]
 
     # 유효성 검사
     if not name:
@@ -176,27 +182,34 @@ def deck_save(request):
     first_idol_id = idol_ids.split(',')[0].strip()
     idol = Idol.objects.filter(idol_id=first_idol_id).first()
 
-    # 중복 제거 후 M2M 저장 (DB용) + 원본 리스트 JSON 저장 (중복 정보 보존)
-    unique_card_ids = list(dict.fromkeys(card_ids))  # 순서 유지하며 중복 제거
+    # M2M용 중복 제거
+    unique_card_ids = list(dict.fromkeys(card_ids))
     cards    = Card.objects.filter(card_id__in=unique_card_ids)
     memories = MemoryCard.objects.filter(memory_id__in=mem_ids)
 
     if deck_id:
+        # 기존 덱 수정
         deck = get_object_or_404(PlayerDeck, id=deck_id, owner=request.user)
-        deck.name           = name
-        deck.idol           = idol
-        deck.description    = desc
-        deck.is_public      = is_public
-        deck.card_list_json = _json.dumps(card_ids)   # 중복 포함 원본 저장
+        deck.name          = name
+        deck.idol          = idol
+        deck.idol_ids_json = idol_ids          # ← 3명 저장
+        deck.description   = desc
+        deck.is_public     = is_public
+        deck.card_list_json = json.dumps(card_ids)  # ← 장수 포함 저장
         deck.save()
         deck.cards.set(cards)
         deck.memory_cards.set(memories)
         messages.success(request, f'덱 "{name}"이 수정되었습니다.')
     else:
+        # 신규 덱 생성
         deck = PlayerDeck.objects.create(
-            owner=request.user, name=name, idol=idol,
-            description=desc, is_public=is_public,
-            card_list_json=_json.dumps(card_ids)      # 중복 포함 원본 저장
+            owner       = request.user,
+            name        = name,
+            idol        = idol,
+            idol_ids_json = idol_ids,          # ← 3명 저장
+            description = desc,
+            is_public   = is_public,
+            card_list_json = json.dumps(card_ids)  # ← 장수 포함 저장
         )
         deck.cards.set(cards)
         deck.memory_cards.set(memories)
@@ -259,7 +272,25 @@ def decklist(request):
     })
 
 
+def deck_detail(request, deck_id):
+    """GET /deck/<id>/detail/ — 공개 덱 상세 보기"""
+    deck = get_object_or_404(PlayerDeck, id=deck_id, is_public=True)
+    import json
+    card_list = json.loads(deck.card_list_json or '[]')
 
+    # 장수 포함한 카드 목록 구성
+    from collections import Counter
+    card_count = Counter(card_list)
+    cards_with_count = [
+        {'card': Card.objects.get(card_id=cid), 'count': cnt}
+        for cid, cnt in card_count.items()
+    ]
+
+    return render(request, 'deck_detail.html', {
+        'deck': deck,
+        'cards_with_count': cards_with_count,
+        'is_owner': request.user == deck.owner,
+    })
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # 통계
